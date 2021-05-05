@@ -1,0 +1,13 @@
+@use "src/colors" as c;
+
+@mixin control_widget_container {//is a widgets container
+    max-width: 800px;
+    flex-grow: 1;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items:stretch;
+    align-content:center;
+    border: c.$color4 1px solid;
+    padding:2px;
+    margin: 5px;
+  }
