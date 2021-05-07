@@ -11,7 +11,7 @@ cOnOff::cOnOff(uint32_t id, uint16_t relay, eOnOffState initialState, uint32_t a
 
 ErrorCode cOnOff::Setup(SensactContext *ctx)
 {
-	return ctx->node->SetU16Output(this->relay, INACTIVE);
+	return ctx->io->SetU16Output(this->relay, INACTIVE);
 }
 
 ErrorCode cOnOff::Loop(SensactContext *ctx)
@@ -21,19 +21,19 @@ ErrorCode cOnOff::Loop(SensactContext *ctx)
 		triggered=false;
 	}
 	if(this->state==eOnOffState_MANUAL_ON){
-		ctx->node->SetU16Output(relay, ACTIVE);
+		ctx->io->SetU16Output(relay, ACTIVE);
 		return ErrorCode::OK;
 	}
 	if(this->state==eOnOffState_MANUAL_OFF){
-		ctx->node->SetU16Output(relay, INACTIVE);
+		ctx->io->SetU16Output(relay, INACTIVE);
 		return ErrorCode::OK;
 	}
 	if(ctx->now-lastHeartbeat > autoOffMsecs && this->state==eOnOffState_AUTO_ON)
 	{
-		ctx->node->SetU16Output(relay, INACTIVE);
+		ctx->io->SetU16Output(relay, INACTIVE);
 		this->state=eOnOffState_AUTO_OFF;
 	}else if(ctx->now-lastHeartbeat <= autoOffMsecs && this->state==eOnOffState_AUTO_OFF){
-		ctx->node->SetU16Output(relay, ACTIVE);
+		ctx->io->SetU16Output(relay, ACTIVE);
 		this->state=eOnOffState_AUTO_ON;
 	}
 	return ErrorCode::OK;

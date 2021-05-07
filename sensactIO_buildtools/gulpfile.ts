@@ -151,4 +151,10 @@ exports.build = gulp.series(
     buildAndFlash
 );
 
+exports.webui=gulp.series(
+    buildWebuiProd,
+    inlineWebui,
+    compressWebui,
+);
+
 exports.default = exports.build;

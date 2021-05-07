@@ -27,32 +27,31 @@
 #include "spiffs.hh"
 
 #define TAG "main"
-
-HAL *hal = new HAL_WroverKitV41();
-Manager *manager=new Manager(hal);
 I2C_IO * const i2c_io = new I2C_IO();
 I2C_MemoryEmulation i2c_mem(I2C_NUM_0, i2c_io);
+std::vector<IOSource*> ioSources{i2c_io};
+HAL *hal = new HAL_WroverKitV41();
+Manager *manager=new Manager(hal, ioSources);
+
 
 extern "C"
 {
     void app_main();
-    void plcTask(void *);
+    void managerTask(void *);
 }
 
-void plcTask(void *pvParameters)
+void managerTask(void *pvParameters)
 {
     //Setup'ed is: HAL and i2c_mem
-    ESP_LOGI(TAG, "plcTask started");
-    TickType_t xLastWakeTime;
-    const TickType_t xFrequency = 10;
+    ESP_LOGI(TAG, "managerTask started");
+    TickType_t xLastWakeTime{0};
+    const TickType_t xTimeIncrement = 1000/portTICK_PERIOD_MS;
     xLastWakeTime = xTaskGetTickCount();
     manager->Setup();
     while (true)
     {
-        vTaskDelayUntil(&xLastWakeTime, xFrequency);
-        hal->BeforeLoop();
+        vTaskDelayUntil(&xLastWakeTime, xTimeIncrement);
         manager->Loop();
-        hal->AfterLoop();
     }
 }
 
@@ -176,7 +175,7 @@ void app_main(void)
     ESP_LOGI(TAG, "Init i2c_mem adapter @%d ",CONFIG_I2C_SLAVE_ADDRESS);
     ESP_ERROR_CHECK(i2c_mem.Setup(PIN_I2C_SCL, PIN_I2C_SDA, CONFIG_I2C_SLAVE_ADDRESS, false, 0));
     
-    xTaskCreate(plcTask, "plcTask", 4096 * 4, NULL, 6, NULL);
+    xTaskCreate(managerTask, "managerTask", 4096 * 4, NULL, 6, NULL);
     int i = 0;
 
     static httpd_handle_t server;

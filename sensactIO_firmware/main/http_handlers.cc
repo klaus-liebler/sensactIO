@@ -136,6 +136,7 @@ esp_err_t handle_put_iostate(httpd_req_t *req) //browser sends commands to chang
     }
     // End response
     // Get a pointer to the root object inside the buffer.
+    //ESP_LOGI(TAG, "Received put_iostate length %d, first bytes are %x %x %x %x %x %x %x %x", req->content_len, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
     auto cmd = flatbuffers::GetRoot<tCommand>(buf);
     manager->HandleCommandFromWebUI(cmd);
     flatbuffers::FlatBufferBuilder builder(512);

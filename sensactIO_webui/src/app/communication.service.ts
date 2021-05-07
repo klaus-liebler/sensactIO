@@ -51,7 +51,21 @@ export class CommunicationService implements OnInit, OnDestroy{
 
 public putCommand(builder:any): Observable<M.tState> {
   this.lastTimePUT= Date.now()+100000;
-  return this.http.put(URL, builder.asUint8Array(), {responseType: 'arraybuffer'}).pipe(
+  let arr:Uint8Array = builder.asUint8Array();
+  let newArr= new Uint8Array(arr.byteLength);
+  
+  for(let i=0;i<arr.byteLength;i++){
+    newArr[i]=arr[i];
+  }
+
+  let s:string="";
+  let buffer = newArr.buffer;
+  for(let i=0;i<newArr.byteLength;i++){
+    s+=newArr[i].toString(16)+" ";
+  }
+
+  console.info(`About to send buffer with length ${buffer.byteLength} and content ${s}.`);
+  return this.http.put(URL, newArr.buffer, {responseType: 'arraybuffer', headers: {"Content-Type": "application/octet-stream"},}).pipe(
     map((arraybuffer)=>{
       this.lastTimePUT=Date.now();
       let buf = new flatbuffers.ByteBuffer(new Uint8Array(arraybuffer));
@@ -68,7 +82,7 @@ public getIoState(): Observable<M.tState> {
   
 
   constructor(private http: HttpClient) {
-    this.ioState = timer(1, 1000).pipe(
+    this.ioState = timer(1, 5000).pipe(
       filter(()=>{return Date.now()>this.lastTimePUT+1000}),
       switchMap(() => http.get(URL, {responseType: 'arraybuffer'})),
       //map(()=>{return CommunicationService.CreateIoState()}),

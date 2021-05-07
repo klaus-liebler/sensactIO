@@ -1,31 +1,30 @@
 #pragma once
-#include "io.hh"
 #include "i2c_mem.hh"
 #include <array>
 #include "esp_log.h"
 #define TAG "I2C_IO"
+#include <array>
 /*
 If contradictionary settings are applied in one transaction, the higher adresses "win"
-16 IOs
+32 IOs; das nullte Byte/Bit im I2C-Speicher wird im IO-Bereich auf Index 1 gemapped. Grund: der "Null"-Pin muss über I2C nicht angesteuert werden + schöneres Speichermodell
 Byte
 */
 constexpr uint8_t IOCONFIG_START{0};//Config (1 Byte pro Pin), Default 0 (für Input), 0b1 für Output OpenDrain, 0b11 für Output Push-Pull
-constexpr uint8_t IOCONFIG_END{16};
-constexpr uint8_t GROUP_DEFINITION_START{16};
-constexpr uint8_t GROUP_DEFINITION_END{32}; //8 groups,  2 bytes each. just set a bit, if an output belongs to a group
-constexpr uint8_t READ_INPUT_START{32};//Read InputBit  016=IO0-IO7, 017=IO08-IO16
-constexpr uint8_t READ_INPUT_END{34};
-constexpr uint8_t WRITE_BOOL_OUTPUT_START{34};//Write Output 0-1 018=IO0-IO7, 019=IO08-IO16
-constexpr uint8_t WRITE_BOOL_OUTPUT_END{36};
-constexpr uint8_t SET_OUTPUT_START{36};//Set Output (Bitband) (set bit to 1 to set Output to 1; hardware resets this bit after successful set)
-constexpr uint8_t SET_OUTPUT_END{38};
-constexpr uint8_t RESET_OUTPUT_START{38};//Reset Output (Bitband) (set bit to 1 to reset Output to 0; hardware resets this bit after successful reset)
-constexpr uint8_t RESET_OUTPUT_END{40};
+constexpr uint8_t IOCONFIG_END{32};
+constexpr uint8_t GROUP_DEFINITION_START{32};//4 groups,  4 bytes each. just set a bit, if an output belongs to a group
+constexpr uint8_t GROUP_DEFINITION_END{48}; 
+constexpr uint8_t READ_INPUT_START{48};//Read InputBit  48=IO1-IO8, 49=IO09-IO16 50=IO17-IO24, 51=IO25-IO32
+constexpr uint8_t READ_INPUT_END{52};
+constexpr uint8_t WRITE_BOOL_OUTPUT_START{52};//Write Output 0-1 018=IO0-IO7, 019=IO08-IO16
+constexpr uint8_t WRITE_BOOL_OUTPUT_END{56};
+constexpr uint8_t SET_OUTPUT_START{56};//Set Output (Bitband) (set bit to 1 to set Output to 1; hardware resets this bit after successful set)
+constexpr uint8_t SET_OUTPUT_END{60};
+constexpr uint8_t RESET_OUTPUT_START{60};//Reset Output (Bitband) (set bit to 1 to reset Output to 0; hardware resets this bit after successful reset)
+constexpr uint8_t RESET_OUTPUT_END{64};
 constexpr uint8_t WRITE_PWM_OUTPUT_START{64};//Set Output PWM (0...255 is translated into übliches Helligkeitsempfinden des Menschen)
-constexpr uint8_t WRITE_PWM_OUTPUT_END{80};
-constexpr uint8_t WRITE_PWM_GROUP_START{80};//Set Output PWM (0...255 is translated into übliches Helligkeitsempfinden des Menschen)
-constexpr uint8_t WRITE_PWM_GROUP_END{88};
-constexpr uint8_t REQUIRE_I2C_CONTROL{128}; //Lokale Vorrangbedienung ==0 -> Off; >=0-->On
+constexpr uint8_t WRITE_PWM_OUTPUT_END{96};
+constexpr uint8_t WRITE_PWM_GROUP_START{96};//Set Output PWM (0...255 is translated into übliches Helligkeitsempfinden des Menschen)
+constexpr uint8_t WRITE_PWM_GROUP_END{100};
 
 /*
 Die Pins können über verschiedene Sources exklusiv angesteuert werden. Die Default-Quelle wird zur Compile-Zeit definiert
@@ -61,146 +60,135 @@ constexpr std::array<uint16_t, 256> level2brightness{ 0, 66, 67, 69, 71, 73, 75,
 		25298, 25996, 26712, 27449, 28205, 28983, 29782, 30603, 31447, 32314,
 		33205, 34120, 35061, 36027, 37020, 38041, 39090, 40168, 41275, 42413,
 		43582, 44784, 46018, 47287, 48591, 49930, 51307, 52721, 54175, 55668,
-		57203, 58780, 60400, 62066, 63777, 65535 };
+		57203, 58780, 60400, 62066, 63777, 65535};
 
 
-template <typename T>
-bool ValueIsInBounds(const T& value, const T& low, const T& high) {
-    return !(value < low) && (value < high);
-}
-
-template <typename T>
-void SetBitIdx(T* value, const int bitIdx) {
-    *value = *value | (1 << bitIdx);
-}
-
-template <typename T> 
-bool IntervalIntersects(const T& aLow, const T& aHigh, const T& bLow, const T& bHigh) {
-    T min = std::max(aLow, bLow);
-    T max =  std::min(aHigh, bHigh);
-    return  max>=min;
-}
 
 class I2C_IO:public I2C_MemoryEmulationHandler, public IOSource{
 private:
-    std::array<uint8_t, 16> config{0};
-    uint16_t configChangedFlags{0};
-    std::array<uint8_t, 16> outputs{0};
-    uint16_t outputsChangedFlags{0};
-    std::array<uint8_t, 2> inputs{0};
-    bool requestsControl{false};
+    volatile uint8_t config[32]{0};
+    volatile uint32_t configChangedFlags{0};
+    volatile uint8_t outputs[32]{0};
+    volatile uint32_t outputsChangedFlags{0};
+    volatile uint32_t inputs{0};
 public:
     I2C_IO(){}
     
-    void Configure(HAL *hal){
+    void Configure(InputOutput *io){
         uint16_t flag = configChangedFlags;
         configChangedFlags=0;
-        for(int i=0;i<16;i++){
-            if(CHECK_BIT(flag, i)){
-                hal->ConfigureIO(i, (IOMode)config[i]);
+        for(int i=0;i<32;i++){
+            if(GetBitIdx(flag, i)){
+                IOMode m = (IOMode)config[i];
+                io->ConfigureIO(i+1, m);
             }
         }  
     }
 
-    void SetOutputs(HAL *hal) override{
-        requestsControl=false;
-        uint16_t flag = outputsChangedFlags;
+    void SetOutputs(InputOutput *io) override{
+        uint32_t flag = outputsChangedFlags;
         outputsChangedFlags=0;
-        for(int i=0;i<16;i++){
-            if(CHECK_BIT(flag, i)){
+        for(int i=0;i<32;i++){
+            if(GetBitIdx(flag, i)){
                 uint16_t value =level2brightness[outputs[i]];
-                ESP_LOGI(TAG, "Change output %d to value %d", i, value);
-                hal->SetU16Output(i, value);
+                io->SetU16Output(i+1, value);
             }
         }  
     }
 
-    uint32_t SetInputs(uint16_t inputs) override{
-        this->inputs[0] = inputs&0xFF;
-        this->inputs[1] = (inputs>>8)&0xFF;
-        return (requestsControl?REQUESTS_CONTROL_MSK:0) | (configChangedFlags?HAS_NEW_CONFIGURATION:0);
+    void SetInputs(InputOutput *io) override{
+        uint32_t inputs{0};
+        io->GetBoolInputs(&inputs);
+        this->inputs = inputs>>1;
     }
 
     void ProvideDataForReadTransactionFromISR(uint8_t idx, uint8_t *data){
-        if(idx==READ_INPUT_START)*data=inputs[0];
-        if(idx==READ_INPUT_START+1)*data=inputs[1];
+        if(idx==READ_INPUT_START)*data=(uint8_t)inputs;
+        if(idx==READ_INPUT_START+1)*data=(uint8_t) ((inputs>>8)&0xFF);
+        if(idx==READ_INPUT_START+2)*data=(uint8_t) ((inputs>>16)&0xFF);
+        if(idx==READ_INPUT_START+3)*data=(uint8_t) ((inputs>>24)&0xFF);
     }
 
     void HandleWriteTransactionFromISR(std::array<uint8_t, I2C_MEM_SIZE> *mem, uint8_t startMem, uint8_t len) override{
-        uint8_t s = startMem;
-        uint8_t e = startMem+len;//end exclusive
-        if(IntervalIntersects(s,e, IOCONFIG_START, IOCONFIG_END)){
-            for(int i=0;i<16;i++){
-                uint8_t newval=mem->at(IOCONFIG_START+i);
+        for(uint8_t idx=startMem;idx<startMem+len;idx++){
+            if(idx<IOCONFIG_END){
+                uint8_t i=idx;
+                uint8_t newval=(*mem)[idx];
                 uint8_t oldval=config[i];
-                if(oldval!=newval){SetBitIdx(&configChangedFlags, i);}
-                config[i]=newval;
-            }
-        }
-        if(IntervalIntersects(s,e, WRITE_BOOL_OUTPUT_START, WRITE_BOOL_OUTPUT_END)){
-            for(int b=0;b<2;b++){
-                uint8_t bits = mem->at(WRITE_BOOL_OUTPUT_START+b);
-                for(int i=0;i<8;i++){
-                    uint8_t newval=CHECK_BIT(bits, i)?UINT8_MAX:0;
-                    uint8_t oldval = outputs[8*b+i];
-                    if(oldval!=newval){SetBitIdx(&outputsChangedFlags, 8*b+i);}
-                    outputs[8*b+i]=newval;
+                if(oldval!=newval){
+                    SetBitIdx(configChangedFlags, i);
+                    config[i]=newval;
                 }
             }
-        }
-        if(IntervalIntersects(s,e, SET_OUTPUT_START, SET_OUTPUT_END)){
-            for(int b=0;b<2;b++){
-                uint8_t bits = mem->at(SET_OUTPUT_START+b);
-                for(int i=0;i<8;i++){
-                    if(CHECK_BIT(bits, i)){
+            else if(idx<READ_INPUT_END){
+                continue;
+            }
+            else if(idx<WRITE_BOOL_OUTPUT_END){
+                uint8_t i=idx-WRITE_BOOL_OUTPUT_START;
+                for(int bit=0;bit<8;bit++){
+                    uint8_t newval=GetBitIdx((*mem)[idx], bit)?UINT8_MAX:0;
+                    uint8_t oldval=outputs[i];
+                    if(oldval!=newval){
+                        SetBitIdx(outputsChangedFlags, i);
+                        outputs[i*8+bit]=newval;
+                    }
+                }
+            }
+            else if(idx<SET_OUTPUT_END){
+                uint8_t offset_x_8=idx-SET_OUTPUT_START;
+                for(int bit=0;bit<8;bit++){
+                    uint8_t outputIdx = offset_x_8*8+bit;
+                    if(GetBitIdx((*mem)[idx], bit)){
                         uint8_t newval=UINT8_MAX;
-                        uint8_t oldval = outputs[8*b+i];
-                        if(oldval!=newval){SetBitIdx(&outputsChangedFlags, 8*b+i);}
-                        outputs[8*b+i]=newval;
-                    }  
+                        uint8_t oldval=outputs[outputIdx];
+                        if(oldval!=newval){
+                            SetBitIdx(outputsChangedFlags, outputIdx);
+                            outputs[outputIdx]=newval;
+                        }
+                    }
                 }
+               (*mem)[idx]=0;
             }
-        }
-        if(IntervalIntersects(s,e, RESET_OUTPUT_START, RESET_OUTPUT_END)){
-            for(int b=0;b<2;b++){
-                uint8_t bits = mem->at(RESET_OUTPUT_START+b);
-                for(int i=0;i<8;i++){
-                    if(CHECK_BIT(bits, i)){
+            else if(idx<RESET_OUTPUT_END){
+                uint8_t offset_x_8=idx-RESET_OUTPUT_START;
+                for(int bit=0;bit<8;bit++){
+                    uint8_t outputIdx = offset_x_8*8+bit;
+                    if(GetBitIdx((*mem)[idx], bit)){
                         uint8_t newval=0;
-                        uint8_t oldval = outputs[8*b+i];
-                        if(oldval!=newval){SetBitIdx(&outputsChangedFlags, 8*b+i);}
-                        outputs[8*b+i]=newval;
-                    }  
+                        uint8_t oldval=outputs[outputIdx];
+                        if(oldval!=newval){
+                            SetBitIdx(outputsChangedFlags, outputIdx);
+                            outputs[outputIdx]=newval;
+                        }
+                    }
+                }
+                (*mem)[idx] = 0;
+            }
+            else if(idx<WRITE_PWM_OUTPUT_END){
+                uint8_t outputIdx=idx-WRITE_PWM_OUTPUT_START;
+                uint8_t newval=(*mem)[idx];
+                uint8_t oldval=outputs[outputIdx];
+                if(oldval!=newval){
+                    SetBitIdx(outputsChangedFlags, outputIdx);
+                    outputs[outputIdx]=newval;
                 }
             }
-        }
-        if(IntervalIntersects(s,e, WRITE_PWM_OUTPUT_START, WRITE_PWM_OUTPUT_END)){
-            for(int i=0;i<16;i++){
-                uint8_t newval=mem->at(WRITE_PWM_OUTPUT_START+i);
-                uint8_t oldval=outputs[i];
-                if(oldval!=newval){SetBitIdx(&outputsChangedFlags, i);}
-                config[i]=newval;
-            }
-        }
-        if(IntervalIntersects(s,e, WRITE_PWM_GROUP_START, WRITE_PWM_GROUP_END)){
-            for(int groupIdx=0;groupIdx<(WRITE_PWM_GROUP_END-WRITE_PWM_GROUP_START);groupIdx++){
-                uint8_t newval=mem->at(WRITE_PWM_GROUP_START+groupIdx);
-                for(int b=0;b<2;b++){ //one group definition consists of two bytes
-                    uint8_t bits = mem->at(GROUP_DEFINITION_START+2*groupIdx+b); //the bits define, whether an output belongs to the group or not
+            else if(idx<WRITE_PWM_GROUP_END){
+                uint8_t groupIdx=idx-WRITE_PWM_GROUP_START;
+                uint8_t newval=(*mem)[idx];
+                for(int b=0;b<4;b++){ //one group definition consists of four bytes
+                    uint8_t bits = (*mem)[GROUP_DEFINITION_START+4*groupIdx+b]; //the bits define, whether an output belongs to the group or not
                     for(int i=0;i<8;i++){
-                        if(CHECK_BIT(bits, i)){//if the output 8*b+i belongs to the group, then set it
+                        if(GetBitIdx(bits, i)){//if the output 8*b+i belongs to the group, then set it
                             uint8_t oldval = outputs[8*b+i];
-                            if(oldval!=newval){SetBitIdx(&outputsChangedFlags, 8*b+i);}
+                            if(oldval!=newval){SetBitIdx(outputsChangedFlags, 8*b+i);}
                             outputs[8*b+i]=newval;
                         }  
                     }
                 }
+                
             }
         }
-        if(IntervalIntersects(s,e, REQUIRE_I2C_CONTROL, (uint8_t )(REQUIRE_I2C_CONTROL+1))){
-        
-            requestsControl=true;
-        }       
         return;
     }
 

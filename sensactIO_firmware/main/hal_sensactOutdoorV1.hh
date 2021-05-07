@@ -83,7 +83,7 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode GetInputs(uint32_t *ptr){
+    ErrorCode GetBoolInputs(uint32_t *ptr){
         *ptr=0;
         return ErrorCode::OK;
     }
@@ -91,7 +91,7 @@ public:
     {
         if(index>=RELAY1 && index<=RELAY6){
             index-=RELAY1;
-            gpio_set_level(RELAY_PINS[index], state==0?0:1);
+            gpio_set_level(RELAY_PINS[index], state); //alles !=0 wird als logisch 1 erkannt
             return ErrorCode::OK;
         }
         if(index>=MOSFET1 && index <=LED_CC){
@@ -103,6 +103,11 @@ public:
         }
         return ErrorCode::NONE_AVAILABLE;
     }
+
+    size_t GetPinCnt(){
+        return pins::sensactOutdoor::PIN_MAX;
+    }
+
     ErrorCode ColorizeLed(uint8_t index, CRGB color) override
     {
         CRGB colorCRGB(color);

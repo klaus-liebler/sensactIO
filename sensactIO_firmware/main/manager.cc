@@ -6,46 +6,69 @@
 #include "aSinglePwm.hh"
 #include "aOnOff.hh"
 #include "paths_and_files.hh"
-#include "cJSON.h" 
+#include "cJSON.h"
+#include <vector>
 
 using namespace sensact::comm;
 
 #define TAG "manager"
-/*
-static cStandbyController standby1(eApplicationID::STANDBY1, RELAY5, 10000);
-static cStandbyController standby2(eApplicationID::STANDBY2, RELAY6, 10000);
-static cRgbPWM rgb(eApplicationID::RGB, MOSFET1, MOSFET2, MOSFET3, &standby1);
-static cWwcwPWM wwcw(eApplicationID::WWCW, MOSFET4, MOSFET5, &standby1);
-static cSinglePWM spots(eApplicationID::SPOTS, LED_CC, &standby2);
-static cBlind awning(eApplicationID::AWNING, RELAY1, RELAY2);
-static cBlind rollo(eApplicationID::ROLLO, RELAY3, RELAY4);
 
-//std::vector<cApplication *> apps;
-//{&rgb, &wwcw, &spots, &awning, &rollo, &standby1, &standby2};
-*/
-Manager::Manager(HAL *hal) : hal(hal)
+Manager::Manager(HAL *hal, std::vector<IOSource *> ioSources) : hal(hal), ioSources(ioSources)
 {
-    ctx.node = hal;
-    ctx.postOffice=this;
+    ctx.io = this;
+    ctx.postOffice = this;
     ctx.now = hal->GetMillis();
+    this->outputU16Buffer.resize(hal->GetPinCnt()+1); //+1, weil die Pins mit id 1 beginnen
+    this->configurationBuffer.resize(hal->GetPinCnt()+1);//+1, weil die Pins mit id 1 beginnen
+    this->outputBufferChangedBits=0;
+}
+
+ErrorCode Manager::ConfigureIO(uint16_t pinId, IOMode mode)
+{
+    if(pinId==0) return ErrorCode::OK;
+    if(pinId>=this->configurationBuffer.size()) return ErrorCode::PIN_NOT_AVAILABLE;
+    reconfigurationRequestOccured=true;
+    this->configurationBuffer[pinId] = mode;
+    return ErrorCode::OK;
+}
+ErrorCode Manager::SetU16Output(uint16_t pinId, uint16_t state)
+{
+    if(pinId==0) return ErrorCode::OK;
+    if(pinId>=this->outputU16Buffer.size()) return ErrorCode::PIN_NOT_AVAILABLE;
+    outputU16Buffer[pinId]=state;
+    SetBitIdx(outputBufferChangedBits, pinId);
+    return ErrorCode::OK;
+}
+ErrorCode Manager::GetBoolInputs(uint32_t *value)
+{
+    *value=inputsBuffer;
+    return ErrorCode::OK;
 }
 
 ErrorCode Manager::HandleCommandFromWebUI(const sensact::comm::tCommand *cmd)
 {
-    uint16_t appId = cmd->applicationId();
-    ESP_LOGI(TAG, "HandleCommandFromWebUI for applicationId %d", appId);
-    if(appId<1 || appId>=apps.size()) {
+    uint32_t appId = cmd->applicationId();
+    if (appId == 0) return ErrorCode::OK;
+   
+    uint16_t appIdx = appId - 1;
+    if(appIdx>=apps.size()) {
+        ESP_LOGE(TAG, "HandleCommandFromWebUI INVALID_APPLICATION_ID %d", appId);
         return ErrorCode::INVALID_APPLICATION_ID;
     }
-    cApplication* app = apps.at(appId-1);
-    if(!app){
+    //ESP_LOGI(TAG, "HandleCommandFromWebUI for applicationId %d", appId);
+    
+    cApplication *app = apps.at(appIdx);
+    if (!app)
+    {
+        ESP_LOGE(TAG, "HandleCommandFromWebUI APPLICATION is NULL %d", appId);
         return ErrorCode::INVALID_APPLICATION_ID;
     }
     return app->ProcessCommand(cmd);
 }
 
-ErrorCode Manager::FillBuilderWithStateForWebUI(flatbuffers::FlatBufferBuilder *builder){
-    
+ErrorCode Manager::FillBuilderWithStateForWebUI(flatbuffers::FlatBufferBuilder *builder)
+{
+
     std::vector<flatbuffers::Offset<tStateWrapper>> status_vector;
     for (const auto &app : apps)
     {
@@ -64,41 +87,46 @@ ErrorCode Manager::Setup()
     FILE *fd = NULL;
     struct stat file_stat;
     ESP_LOGI(TAG, "Trying to open %s", Paths::DEFAULTCFG_PATH);
-    if (stat(Paths::DEFAULTCFG_PATH, &file_stat) == -1) {
+    if (stat(Paths::DEFAULTCFG_PATH, &file_stat) == -1)
+    {
         ESP_LOGI(TAG, "Default PLC file %s does not exist. Exiting..", Paths::DEFAULTCFG_PATH);
         return ErrorCode::NO_CONFIGURATION_FOUND;
     }
     fd = fopen(Paths::DEFAULTCFG_PATH, "r");
-    if (!fd) {
+    if (!fd)
+    {
         ESP_LOGE(TAG, "Failed to read existing file : %s", Paths::DEFAULTCFG_PATH);
         return ErrorCode::FILE_SYSTEM_ERROR;
     }
     uint8_t buf[file_stat.st_size];
     size_t size_read = fread(buf, 1, file_stat.st_size, fd);
-    if(size_read!=file_stat.st_size){
+    if (size_read != file_stat.st_size)
+    {
         ESP_LOGE(TAG, "Unable to read file completely : %s", Paths::DEFAULTCFG_PATH);
         return ErrorCode::FILE_SYSTEM_ERROR;
     }
     ESP_LOGI(TAG, "Successfully read %s into buffer", Paths::DEFAULTCFG_PATH);
     auto cfg = flatbuffers::GetRoot<tIoConfig>(buf);
     auto cfg_vect = cfg->configs();
-    auto cfg_vect_size= cfg_vect->size();
+    auto cfg_vect_size = cfg_vect->size();
     auto timestamp = cfg->timestamp();
     ESP_LOGI(TAG, "Found %d app configurations and timestamp %d", cfg_vect_size, timestamp);
-    
+
     this->apps.resize(cfg_vect_size);
-    for(int i=0;i<cfg_vect_size;i++){
-        int id=i+1;
+    for (int i = 0; i < cfg_vect_size; i++)
+    {
+        int id = i + 1;
         auto x = cfg_vect->Get(i);
-        switch(x->config_type()){
+        switch (x->config_type())
+        {
         case uConfig_tBlindConfig:
-            apps[i]=cBlind::Build(id, x);
+            apps[i] = cBlind::Build(id, x);
             break;
         case uConfig_tOnOffConfig:
-            apps[i]=cOnOff::Build(id, x);
+            apps[i] = cOnOff::Build(id, x);
             break;
         case uConfig_tSinglePwmConfig:
-            apps[i]=cSinglePWM::Build(id, x);
+            apps[i] = cSinglePWM::Build(id, x);
         default:
             continue;
         }
@@ -110,28 +138,56 @@ ErrorCode Manager::Setup()
     return ErrorCode::OK;
 }
 
-
-
 ErrorCode Manager::Loop()
 {
     ctx.now = this->hal->GetMillis();
+    outputBufferChangedBits=0;
+    hal->BeforeLoop();
+    //Jede IOSource und ganz zum Schluss die Webui bekommen zugang zu den hier gepufferten Inputs und Outputs
+    //Jede schreibt ihren Wunsch hier rein. Je weiter hinten eine IOsource im Vktor ist, desto mehr Priorität hat sie
+    //oberste Priorität haben die Befehle der webui, deshalb wird ganz zum schluss über die Apps der Webui gelooped
+
+    hal->GetBoolInputs(&this->inputsBuffer);
+    for (std::size_t i = 0; i < ioSources.size(); ++i)
+    {
+        ioSources[i]->Configure(this);
+        ioSources[i]->SetInputs(this);
+        ioSources[i]->SetOutputs(this);
+    }
     for (const auto &app : apps)
     {
         app->Loop(&this->ctx);
     }
+    if(this->outputBufferChangedBits){
+        for (std::size_t i = 1; i < this->outputU16Buffer.size(); i++)
+        {
+            hal->SetU16Output(i, this->outputU16Buffer[i]);
+        }
+    }
+    if(this->reconfigurationRequestOccured){
+        this->reconfigurationRequestOccured=false;
+        for (std::size_t i = 1; i < this->configurationBuffer.size(); i++)
+        {
+            hal->ConfigureIO(i, this->configurationBuffer[i]);
+        }
+    }
+
+    hal->AfterLoop();
     return ErrorCode::OK;
 }
 
-ErrorCode Manager::PostCommand(const tCommand *cmd){
-    if(cmd->applicationId()==0){
+ErrorCode Manager::PostCommand(const tCommand *cmd)
+{
+    if (cmd->applicationId() == 0)
+    {
         return ErrorCode::OK;
     }
-    cApplication *app=this->apps.at(cmd->applicationId()-1);
-    if(!app){
+    cApplication *app = this->apps.at(cmd->applicationId() - 1);
+    if (!app)
+    {
         return ErrorCode::NONE_AVAILABLE;
     }
     return app->ProcessCommand(cmd);
 }
-
 
 #undef TAG

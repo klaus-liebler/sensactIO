@@ -8,7 +8,7 @@
 cSinglePWM::cSinglePWM(uint32_t id, const uint16_t pwmFirst, const uint16_t pwmLast, uint32_t autoOffMsecs, uint32_t idOfStandbyController):
 	cApplication(id), pwmFirst(pwmFirst), pwmLast(pwmLast), autoOffMsecs(autoOffMsecs), idOfStandbyController(idOfStandbyController), intensity0_100(50), on(false), changed(false)
 {
-
+	ESP_LOGI(TAG, "Build cSinglePWM for id:%d, pwmFirst:%d autoOffMsecs:%d idOfStandbyController:%d", id, pwmFirst, autoOffMsecs, idOfStandbyController);
 }
 
 ErrorCode cSinglePWM::Setup(SensactContext *ctx) {
@@ -17,13 +17,16 @@ ErrorCode cSinglePWM::Setup(SensactContext *ctx) {
 
 ErrorCode cSinglePWM::Loop(SensactContext *ctx)
 {
-	if(on && autoOffMsecs!=0 && lastChanged+autoOffMsecs>=ctx->now){
+	if(!changed && on && autoOffMsecs!=0 && lastChanged+autoOffMsecs<ctx->now){
+		//das !changed muss auch abgefragt werden, weil sonst ein Command hier direkt abgeblockt werden könnte
+		ESP_LOGI(TAG, "AutoOff id %d after %d ms", id, autoOffMsecs);
 		this->changed=true;
 		this->on=false;
 	}
 	
-	if(this->on && lastHeartbeatSent+3000<ctx->now){
-		flatbuffers::FlatBufferBuilder builder(32);
+	if(idOfStandbyController!=0 && this->on && lastHeartbeatSent+3000<ctx->now){
+		ESP_LOGI(TAG, "Sending heartbeat from id %d to id %d", id, idOfStandbyController);
+		flatbuffers::FlatBufferBuilder builder(64);
 		auto onOffCmd=CreatetOnOffCommand(builder, eOnOffCommand_TRIGGER);
 		auto cmd = sensact::comm::CreatetCommand(builder, idOfStandbyController, uCommand::uCommand_tOnOffCommand, onOffCmd.Union());
 		builder.Finish(cmd);
@@ -34,24 +37,25 @@ ErrorCode cSinglePWM::Loop(SensactContext *ctx)
 	if(!this->changed){
 		return ErrorCode::OK;
 	}
+	ESP_LOGI(TAG, "Changes occuredin id %d", id);
 	this->changed=false;
 	this->lastChanged=ctx->now;
 	if(!this->on){
 		for(int out=pwmFirst;out<=pwmLast;out++){
-			ctx->node->SetU16Output(out, 0);
+			ctx->io->SetU16Output(out, 0);
 		}
 		return ErrorCode::OK;
 	}
 
 	if(this->intensity0_100==100){
 		for(int out=pwmFirst;out<=pwmLast;out++){
-			ctx->node->SetU16Output(out, UINT16_MAX);//wenn voll an, dann auch wirklich voll an...
+			ctx->io->SetU16Output(out, UINT16_MAX);//wenn voll an, dann auch wirklich voll an...
 		}
 	}
 	else {
 		float val=this->intensity0_100*((float)UINT16_MAX/100.0);
 		for(int out=pwmFirst;out<=pwmLast;out++){
-			ctx->node->SetU16Output(out, val);//...weil hier ja 0en reingeschoben würden
+			ctx->io->SetU16Output(out, val);//...weil hier ja 0en reingeschoben würden
 		}
 	}
 	return ErrorCode::OK;
@@ -75,10 +79,12 @@ ErrorCode cSinglePWM::ProcessCommand(const tCommand* msg){
 	case eSinglePwmCommand_TOGGLE:
 		this->on=!this->on;
 		this->changed=true;
+		ESP_LOGI(TAG, "eSinglePwmCommand_TOGGLE for id %d, now %s", id, on ? "true" : "false");
 		break;
 	case eSinglePwmCommand_CHANGE_INTENSITY:
 		this->intensity0_100 = cmd->intensity0_100();
 		this->changed=true;
+		ESP_LOGI(TAG, "eSinglePwmCommand_CHANGE_INTENSITY for id %d, now %d", id, intensity0_100);
 		break;
 	default:
 		return ErrorCode::INVALID_COMMAND;
@@ -91,7 +97,6 @@ cSinglePWM *cSinglePWM::Build(uint32_t const id, const tConfigWrapper* cfg){
 	if(cfg->config_type() !=uConfig::uConfig_tSinglePwmConfig){
 		return nullptr;
 	}
-	ESP_LOGI(TAG, "Build uConfig_tSinglePwmConfig for id %d", id);
 	auto x = cfg->config_as_tSinglePwmConfig();
 	return new cSinglePWM(id, x->pwmFirst(), x->pwmLast(), x->autoOffMsecs(), x->idOfStandbyController());
 }

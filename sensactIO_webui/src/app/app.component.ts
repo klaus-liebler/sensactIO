@@ -38,7 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
             || this.widgets[i].applicationId!=r.states(i).applicationId()
             || this.widgets[i].type!=r.states(i).stateType()){
               this.widgets[i]={applicationId:r.states(i).applicationId(), type:r.states(i).stateType()};
-              console.log("Created "+this.widgets[i]);
+              console.log("Created "+this.widgets[i].type);
             } 
       }
       this.state=r;

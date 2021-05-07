@@ -28,7 +28,6 @@ export class SinglePWMCommandWidgetComponent implements OnInit, OnDestroy, After
 
   @Input() set applicationId(value:number){
     this._applicationId=value;
-    console.log(`In SinglePWMCommandWidgetComponent: set applD to ${value}.`);
   }
 
   @Input() set state(r:M.tState){
@@ -45,41 +44,34 @@ export class SinglePWMCommandWidgetComponent implements OnInit, OnDestroy, After
     }
   }
 
-
-  public ngOnInit():void {
-
-
-  }
-
-
+  public ngOnInit():void {}
 
   public ngOnDestroy(): void {
     this.spotsPicker.off('color:change', (color, changes)=>this.ngZone.run(() => this.onColorChange(color, changes)));
     this.spotsPicker=null;
-    //<p>{{intensity_0_100}}</p>
   }
   
 
   public onColorChange(color, changes) {
     this.selectedIntensity = color.hsv.v;
-    console.log("Send CHANGE_INTENSITY "+this.selectedIntensity);
     let builder = new flatbuffers.Builder(1024);
     let cmd=M.tSinglePwmCommand.createtSinglePwmCommand(builder, M.eSinglePwmCommand.CHANGE_INTENSITY, this.selectedIntensity);
-    let wcmd = M.tCommand.createtCommand(builder, this.applicationId, M.uCommand.tSinglePwmCommand, cmd);
+    let wcmd = M.tCommand.createtCommand(builder, this._applicationId, M.uCommand.tSinglePwmCommand, cmd);
     builder.finish(wcmd);
     this.comm.putCommand(builder).subscribe((state:M.tState)=>{this.state=state});
   }
 
   public onToggle(){
-    console.log(`Send TOGGLE with applicationId ${this.applicationId}`);
+    console.log(`Send TOGGLE with applicationId ${this._applicationId}`);
     let builder = new flatbuffers.Builder(1024);
     let cmd=M.tSinglePwmCommand.createtSinglePwmCommand(builder, M.eSinglePwmCommand.TOGGLE, this.spotsPicker.color.hsv.v);
-    let wcmd = M.tCommand.createtCommand(builder, this.applicationId, M.uCommand.tSinglePwmCommand, cmd);
+    let wcmd = M.tCommand.createtCommand(builder, this._applicationId, M.uCommand.tSinglePwmCommand, cmd);
     builder.finish(wcmd);
     this.comm.putCommand(builder).subscribe((state:M.tState)=>{this.state=state});
   }
 
-  constructor(public ngZone: NgZone, private comm:CommunicationService) {}
+  constructor(public ngZone: NgZone, private comm:CommunicationService) {
+  }
 
   ngAfterViewInit(): void {
     let width = Math.min(400, 0.9 * this.iroDiv.nativeElement.offsetWidth);
