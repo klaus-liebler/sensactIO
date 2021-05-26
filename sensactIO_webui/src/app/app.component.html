@@ -1,17 +1,7 @@
 <header>
-    <span>sensactOutdoor WebUI</span>
+    <span>sensactOutdoor WebUI</span>&nbsp;&nbsp;<a routerLink="/command">CMD</a>&nbsp;&nbsp;<a routerLink="/config">CFG</a>
 </header>
-<main>
-
-    <ng-container *ngFor="let widget of widgets" [ngSwitch]="widget.type">
-        <app-blind-command-widget *ngSwitchCase=uState.tBlindState [applicationId]="widget.applicationId"
-            [state]="state"></app-blind-command-widget>
-        <app-single-pwmcommand-widget *ngSwitchCase=uState.tSinglePwmState [applicationId]="widget.applicationId"
-            [state]="state"></app-single-pwmcommand-widget>
-        <app-on-off-command-widget *ngSwitchCase=uState.tOnOffState [applicationId]="widget.applicationId"
-            [state]="state"></app-on-off-command-widget>
-    </ng-container>
-</main>
+<router-outlet></router-outlet>
 <footer>
     Für meine liebste Familie!
 </footer>

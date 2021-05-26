@@ -21,10 +21,10 @@ void cBlind::prepareUp(SensactContext *ctx)
 	this->lastChanged = ctx->now;
 	switch (this->mode)
 	{
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_POWER__RELAY2_UP:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_POWER__R2_UP:
 		ctx->io->SetU16Output(relay2, ACTIVE);
 		break;
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_UP__RELAY2_POWER:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_UP__R2_POWER:
 		ctx->io->SetU16Output(relay1, ACTIVE);
 		break;
 	default:
@@ -38,14 +38,14 @@ void cBlind::up(SensactContext *ctx)
 	this->lastChanged = ctx->now;
 	switch (this->mode)
 	{
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_POWER__RELAY2_UP:
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_POWER__RELAY2_DOWN:
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_UP__RELAY2_DOWN:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_POWER__R2_UP:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_POWER__R2_DOWN:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_UP__R2_DOWN:
 		ctx->io->SetU16Output(relay1, ACTIVE);
 		break;
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_DOWN__RELAY2_UP:
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_UP__RELAY2_POWER:
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_DOWN__RELAY2_POWER:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_DOWN__R2_UP:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_UP__R2_POWER:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_DOWN__R2_POWER:
 		ctx->io->SetU16Output(relay2, ACTIVE);
 		break;
 	default:
@@ -59,10 +59,10 @@ void cBlind::prepareDown(SensactContext *ctx)
 	this->lastChanged = ctx->now;
 	switch (this->mode)
 	{
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_POWER__RELAY2_DOWN:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_POWER__R2_DOWN:
 		ctx->io->SetU16Output(relay2, ACTIVE);
 		break;
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_DOWN__RELAY2_POWER:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_DOWN__R2_POWER:
 		ctx->io->SetU16Output(relay1, ACTIVE);
 		break;
 	default:
@@ -76,14 +76,14 @@ void cBlind::down(SensactContext *ctx)
 	this->lastChanged = ctx->now;
 	switch (this->mode)
 	{
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_POWER__RELAY2_UP:
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_POWER__RELAY2_DOWN:
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_DOWN__RELAY2_UP:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_POWER__R2_UP:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_POWER__R2_DOWN:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_DOWN__R2_UP:
 		ctx->io->SetU16Output(relay1, ACTIVE);
 		break;
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_UP__RELAY2_POWER:
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_DOWN__RELAY2_POWER:
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_UP__RELAY2_DOWN:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_UP__R2_POWER:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_DOWN__R2_POWER:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_UP__R2_DOWN:
 		ctx->io->SetU16Output(relay2, ACTIVE);
 		break;
 	default:
@@ -96,18 +96,18 @@ void cBlind::stop(SensactContext *ctx)
 	this->lastChanged = ctx->now;
 	switch (this->mode)
 	{
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_POWER__RELAY2_UP:
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_POWER__RELAY2_DOWN:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_POWER__R2_UP:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_POWER__R2_DOWN:
 		ctx->io->SetU16Output(relay1, INACTIVE);
 		break;
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_UP__RELAY2_POWER:
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_DOWN__RELAY2_POWER:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_UP__R2_POWER:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_DOWN__R2_POWER:
 		ctx->io->SetU16Output(relay2, INACTIVE);
 		break;
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_DOWN__RELAY2_UP:
-	case eRelayInterlockMode::eRelayInterlockMode_RELAY1_UP__RELAY2_DOWN:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_DOWN__R2_UP:
+	case eRelayInterlockMode::eRelayInterlockMode_R1_UP__R2_DOWN:
 		ctx->io->SetU16Output(relay1, INACTIVE);
-		ctx->io->SetU16Output(relay1, INACTIVE);
+		ctx->io->SetU16Output(relay2, INACTIVE);
 		break;
 	default:
 		break;

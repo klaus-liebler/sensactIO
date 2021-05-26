@@ -336,43 +336,43 @@ bool VerifyuCommand(flatbuffers::Verifier &verifier, const void *obj, uCommand t
 bool VerifyuCommandVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
 
 enum eRelayInterlockMode {
-  eRelayInterlockMode_RELAY1_UP__RELAY2_DOWN = 0,
-  eRelayInterlockMode_RELAY1_DOWN__RELAY2_UP = 1,
-  eRelayInterlockMode_RELAY1_POWER__RELAY2_UP = 2,
-  eRelayInterlockMode_RELAY1_POWER__RELAY2_DOWN = 3,
-  eRelayInterlockMode_RELAY1_UP__RELAY2_POWER = 4,
-  eRelayInterlockMode_RELAY1_DOWN__RELAY2_POWER = 5,
-  eRelayInterlockMode_MIN = eRelayInterlockMode_RELAY1_UP__RELAY2_DOWN,
-  eRelayInterlockMode_MAX = eRelayInterlockMode_RELAY1_DOWN__RELAY2_POWER
+  eRelayInterlockMode_R1_UP__R2_DOWN = 0,
+  eRelayInterlockMode_R1_DOWN__R2_UP = 1,
+  eRelayInterlockMode_R1_POWER__R2_UP = 2,
+  eRelayInterlockMode_R1_POWER__R2_DOWN = 3,
+  eRelayInterlockMode_R1_UP__R2_POWER = 4,
+  eRelayInterlockMode_R1_DOWN__R2_POWER = 5,
+  eRelayInterlockMode_MIN = eRelayInterlockMode_R1_UP__R2_DOWN,
+  eRelayInterlockMode_MAX = eRelayInterlockMode_R1_DOWN__R2_POWER
 };
 
 inline const eRelayInterlockMode (&EnumValueseRelayInterlockMode())[6] {
   static const eRelayInterlockMode values[] = {
-    eRelayInterlockMode_RELAY1_UP__RELAY2_DOWN,
-    eRelayInterlockMode_RELAY1_DOWN__RELAY2_UP,
-    eRelayInterlockMode_RELAY1_POWER__RELAY2_UP,
-    eRelayInterlockMode_RELAY1_POWER__RELAY2_DOWN,
-    eRelayInterlockMode_RELAY1_UP__RELAY2_POWER,
-    eRelayInterlockMode_RELAY1_DOWN__RELAY2_POWER
+    eRelayInterlockMode_R1_UP__R2_DOWN,
+    eRelayInterlockMode_R1_DOWN__R2_UP,
+    eRelayInterlockMode_R1_POWER__R2_UP,
+    eRelayInterlockMode_R1_POWER__R2_DOWN,
+    eRelayInterlockMode_R1_UP__R2_POWER,
+    eRelayInterlockMode_R1_DOWN__R2_POWER
   };
   return values;
 }
 
 inline const char * const *EnumNameseRelayInterlockMode() {
   static const char * const names[7] = {
-    "RELAY1_UP__RELAY2_DOWN",
-    "RELAY1_DOWN__RELAY2_UP",
-    "RELAY1_POWER__RELAY2_UP",
-    "RELAY1_POWER__RELAY2_DOWN",
-    "RELAY1_UP__RELAY2_POWER",
-    "RELAY1_DOWN__RELAY2_POWER",
+    "R1_UP__R2_DOWN",
+    "R1_DOWN__R2_UP",
+    "R1_POWER__R2_UP",
+    "R1_POWER__R2_DOWN",
+    "R1_UP__R2_POWER",
+    "R1_DOWN__R2_POWER",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameeRelayInterlockMode(eRelayInterlockMode e) {
-  if (flatbuffers::IsOutRange(e, eRelayInterlockMode_RELAY1_UP__RELAY2_DOWN, eRelayInterlockMode_RELAY1_DOWN__RELAY2_POWER)) return "";
+  if (flatbuffers::IsOutRange(e, eRelayInterlockMode_R1_UP__R2_DOWN, eRelayInterlockMode_R1_DOWN__R2_POWER)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNameseRelayInterlockMode()[index];
 }
@@ -1029,7 +1029,7 @@ inline flatbuffers::Offset<tBlindConfig> CreatetBlindConfig(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t relay1 = 0,
     uint16_t relay2 = 0,
-    sensact::comm::eRelayInterlockMode mode = sensact::comm::eRelayInterlockMode_RELAY1_UP__RELAY2_DOWN,
+    sensact::comm::eRelayInterlockMode mode = sensact::comm::eRelayInterlockMode_R1_UP__R2_DOWN,
     uint32_t time_up_msecs = 0,
     uint32_t time_down_msecs = 0) {
   tBlindConfigBuilder builder_(_fbb);

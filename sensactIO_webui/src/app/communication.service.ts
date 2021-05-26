@@ -1,18 +1,21 @@
 import { Injectable, OnDestroy, OnInit } from '@angular/core';
-import { Observable, timer, Subscription, Subject } from 'rxjs';
+import { Observable, timer, Subscription, Subject, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { switchMap, map, tap, share, retry, takeUntil, filter } from 'rxjs/operators';
+import { switchMap, map, tap, share, retry, takeUntil, filter, catchError } from 'rxjs/operators';
 import { flatbuffers } from 'flatbuffers';
 import * as C from './webui_core_comm_generated';
 
 import M = C.sensact.comm;
+import { environment } from 'src/environments/environment';
 
-const URL = "/iostate"
+const IOSTATE_URL = "/iostate";
+const IOCONFIG_URL = "/iocfg";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CommunicationService implements OnInit, OnDestroy{
+  
   ngOnInit(): void {
     
   }
@@ -49,23 +52,71 @@ export class CommunicationService implements OnInit, OnDestroy{
     return builder.asUint8Array();
 }
 
-public putCommand(builder:any): Observable<M.tState> {
-  this.lastTimePUT= Date.now()+100000;
-  let arr:Uint8Array = builder.asUint8Array();
-  let newArr= new Uint8Array(arr.byteLength);
+public static CreateIoConfig():M.tIoConfig{
+  let builder = new flatbuffers.Builder(1024);
+  let cfg1=M.tBlindConfig.createtBlindConfig(builder, 2,3,M.eRelayInterlockMode.R1_DOWN__R2_UP, 10000, 5042);
+  let wCfg1 = M.tConfigWrapper.createtConfigWrapper(builder, M.uConfig.tBlindConfig, cfg1);
+  let cfg2=M.tSinglePwmConfig.createtSinglePwmConfig(builder, 1,3,0, 10000);
+  let wCfg2 = M.tConfigWrapper.createtConfigWrapper(builder, C.sensact.comm.uConfig.tSinglePwmConfig, cfg2);
+  let cfg3=M.tOnOffConfig.createtOnOffConfig(builder, 3, 9900, M.eOnOffState.AUTO_OFF);
+  let wCfg3 = M.tConfigWrapper.createtConfigWrapper(builder, M.uConfig.tOnOffConfig, cfg3);
+  let cfg_vect = M.tIoConfig.createConfigsVector(builder, [wCfg1, wCfg2, wCfg3]);
+  let cfg= M.tIoConfig.createtIoConfig(builder, 0, cfg_vect);
+  builder.finish(cfg);
+  let arr= builder.asUint8Array();
+  let buf = new flatbuffers.ByteBuffer(new Uint8Array(arr));
+      return M.tIoConfig.getRootAstIoConfig(buf);
+}
+
+public getIoConfig():Observable<M.tIoConfig>{
+  if(!environment.production){
+    return of(CommunicationService.CreateIoConfig());
+  }
+  return this.http.get(IOCONFIG_URL, {responseType: 'arraybuffer', }).pipe(
+    map((arraybuffer)=>{
+      this.lastTimePUT=Date.now();
+      let buf = new flatbuffers.ByteBuffer(new Uint8Array(arraybuffer));
+      return M.tIoConfig.getRootAstIoConfig(buf);
+    })
+  );
+}
+
+private handleError<T>(operation = 'operation', result?: T) {
+  return (error: any): Observable<T> => {
+
+    // TODO: send the error to remote logging infrastructure
+    console.error(error); // log to console instead
+
+    // TODO: better job of transforming error for user consumption
+    //this.log(`${operation} failed: ${error.message}`);
+
+    // Let the app keep running by returning an empty result.
+    return of(result as T);
+  };
+}
+
+public putIoConfig(arr: Uint8Array):Observable<{}> {
+  let buffer = arr.buffer.slice(arr.byteOffset, arr.byteOffset+arr.byteLength)
   
-  for(let i=0;i<arr.byteLength;i++){
-    newArr[i]=arr[i];
+  let arr1=new Uint8Array(buffer);
+  let s=""
+  if(!environment.production){
+    for(let i=0;i<arr1.length;i++){
+      s+=arr[i].toString(16)+", ";
+    }
   }
+  console.log(`arr.byteOffset: ${arr.byteOffset} arr.byteLenght: ${arr.byteLength} content: ${s}`);
+  return this.http.put(IOCONFIG_URL, buffer, {headers: {"Content-Type": "application/octet-stream"}}).pipe(
+    tap( () => console.log('tapped putIoConfig')),
+    catchError(this.handleError<object>('putIoConfig', []))
+  );
+}
 
-  let s:string="";
-  let buffer = newArr.buffer;
-  for(let i=0;i<newArr.byteLength;i++){
-    s+=newArr[i].toString(16)+" ";
-  }
-
-  console.info(`About to send buffer with length ${buffer.byteLength} and content ${s}.`);
-  return this.http.put(URL, newArr.buffer, {responseType: 'arraybuffer', headers: {"Content-Type": "application/octet-stream"},}).pipe(
+public putCommand(arr: Uint8Array): Observable<M.tState> {
+  this.lastTimePUT= Date.now()+100000;
+  console.log(`arr.byteOffset: ${arr.byteOffset} arr.byteLenght: ${arr.byteLength} lenght ${arr.length}`);
+  let buffer = arr.buffer.slice(arr.byteOffset, arr.byteOffset+arr.byteLength)
+  return this.http.put(IOSTATE_URL, buffer, {responseType: 'arraybuffer', headers: {"Content-Type": "application/octet-stream"},}).pipe(
     map((arraybuffer)=>{
       this.lastTimePUT=Date.now();
       let buf = new flatbuffers.ByteBuffer(new Uint8Array(arraybuffer));
@@ -84,8 +135,7 @@ public getIoState(): Observable<M.tState> {
   constructor(private http: HttpClient) {
     this.ioState = timer(1, 5000).pipe(
       filter(()=>{return Date.now()>this.lastTimePUT+1000}),
-      switchMap(() => http.get(URL, {responseType: 'arraybuffer'})),
-      //map(()=>{return CommunicationService.CreateIoState()}),
+      environment.production?switchMap(() => http.get(IOSTATE_URL, {responseType: 'arraybuffer'})):map(()=>{return CommunicationService.CreateIoState()}),
       tap((x)=>{console.log(`Received an ioState message with len ${x.byteLength}`)}),
       map((arraybuffer)=>{
         let buf = new flatbuffers.ByteBuffer(new Uint8Array(arraybuffer));

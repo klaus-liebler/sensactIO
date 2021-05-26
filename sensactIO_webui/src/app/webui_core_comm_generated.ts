@@ -81,12 +81,12 @@ export enum uCommand{
  */
 export namespace sensact.comm{
 export enum eRelayInterlockMode{
-  RELAY1_UP__RELAY2_DOWN= 0,
-  RELAY1_DOWN__RELAY2_UP= 1,
-  RELAY1_POWER__RELAY2_UP= 2,
-  RELAY1_POWER__RELAY2_DOWN= 3,
-  RELAY1_UP__RELAY2_POWER= 4,
-  RELAY1_DOWN__RELAY2_POWER= 5
+  R1_UP__R2_DOWN= 0,
+  R1_DOWN__R2_UP= 1,
+  R1_POWER__R2_UP= 2,
+  R1_POWER__R2_DOWN= 3,
+  R1_UP__R2_POWER= 4,
+  R1_DOWN__R2_POWER= 5
 }};
 
 /**
@@ -1038,7 +1038,7 @@ relay2():number {
  */
 mode():sensact.comm.eRelayInterlockMode {
   var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : sensact.comm.eRelayInterlockMode.RELAY1_UP__RELAY2_DOWN;
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : sensact.comm.eRelayInterlockMode.R1_UP__R2_DOWN;
 };
 
 /**
@@ -1085,7 +1085,7 @@ static addRelay2(builder:flatbuffers.Builder, relay2:number) {
  * @param sensact.comm.eRelayInterlockMode mode
  */
 static addMode(builder:flatbuffers.Builder, mode:sensact.comm.eRelayInterlockMode) {
-  builder.addFieldInt8(2, mode, sensact.comm.eRelayInterlockMode.RELAY1_UP__RELAY2_DOWN);
+  builder.addFieldInt8(2, mode, sensact.comm.eRelayInterlockMode.R1_UP__R2_DOWN);
 };
 
 /**

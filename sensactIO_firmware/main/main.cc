@@ -56,12 +56,7 @@ void managerTask(void *pvParameters)
 }
 
 
-static const httpd_uri_t get_root = {
-    .uri       = "/",
-    .method    = HTTP_GET,
-    .handler   = handle_get_root,
-    .user_ctx = manager,
-};
+
 
 static const httpd_uri_t put_iostate = {
     .uri       = "/iostate",
@@ -91,12 +86,20 @@ static const httpd_uri_t put_iocfg = {
     .user_ctx = manager,
 };
 
+static const httpd_uri_t get_common = {
+    .uri       = "/*",
+    .method    = HTTP_GET,
+    .handler   = handle_get_common,
+    .user_ctx = manager,
+};
+
 static httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     //config.uri_match_fn = httpd_uri_match_wildcard;
     //config.max_uri_handlers = 12;
+    config.uri_match_fn = httpd_uri_match_wildcard;
     const char * hostnameptr;
     tcpip_adapter_get_hostname(TCPIP_ADAPTER_IF_STA, &hostnameptr);
     if (httpd_start(&server, &config) != ESP_OK) {
@@ -104,11 +107,11 @@ static httpd_handle_t start_webserver(void)
         esp_restart();
     }
     ESP_LOGI(TAG, "HTTPd successfully started for website http://%s:%d", hostnameptr, config.server_port);
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &get_root));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &put_iostate));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &get_iostate));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &put_iocfg));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &get_iocfg));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &get_common));
     return server;
 }
 

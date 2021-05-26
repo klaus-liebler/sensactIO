@@ -69,25 +69,29 @@ public:
     }
 
     size_t GetPinCnt(){
-        return pins::wroverkit::PIN_MAX;
+        return 16;
     }
 
     ErrorCode GetBoolInputs(uint32_t *ptr){
         //HAL_WroverKitV3 IOs has no inputs
-        *ptr=0;
+        *ptr=0xAAAAAAAA;
         return ErrorCode::OK;
     }
     ErrorCode SetU16Output(uint16_t pinId, uint16_t state) override
     {
         //1=R, 2=G, 3=B
         if(pinId==0) return ErrorCode::OK;
-        if(pinId>pins::wroverkit::PIN_MAX) return ErrorCode::PIN_NOT_AVAILABLE;
+        
+        if(pinId>pins::wroverkit::PIN_MAX){
+            ESP_LOGI(TAG, "Set output %d to %d", pinId, state);
+            return ErrorCode::OK;    
+        }
         uint16_t index=pinId-1;
         uint32_t duty = state>>(16-PWM_RESOLUTION);
         if(duty==(1<<PWM_RESOLUTION)-1){
             duty=1<<PWM_RESOLUTION;
         }
-        ESP_LOGI(TAG, "Set PWM %d to %d", pinId, duty);
+        ESP_LOGI(TAG, "Set output %d to duty %d", pinId, duty);
         ledc_set_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)index, duty);
         ledc_update_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)index);
         return ErrorCode::OK;

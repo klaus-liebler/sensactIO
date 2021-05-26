@@ -71,30 +71,11 @@ public:
 };
 
 
-esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
-{
-    if (strcmp("/hello", req->uri) == 0)
-    {
-        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "/hello URI is not available");
-        /* Return ESP_OK to keep underlying socket open */
-        return ESP_OK;
-    }
-    else if (strcmp("/echo", req->uri) == 0)
-    {
-        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "/echo URI is not available");
-        /* Return ESP_FAIL to close underlying socket */
-        return ESP_FAIL;
-    }
-    /* For any other URI send 404 and close socket */
-    httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Some 404 error message");
-    return ESP_FAIL;
-}
-
 extern const char index_html_gz_start[] asm("_binary_index_html_gz_start");
 extern const char index_html_gz_end[] asm("_binary_index_html_gz_end");
 extern const size_t index_html_gz_size asm("index_html_gz_length");
 
-esp_err_t handle_get_root(httpd_req_t *req)//browser get application itself
+esp_err_t handle_get_common(httpd_req_t *req)//browser get application itself
 {
     ESP_LOGI(TAG, "HTTPd get_root for file with lenght %d", index_html_gz_size);
     httpd_resp_set_type(req, "text/html");
@@ -146,11 +127,11 @@ esp_err_t handle_put_iostate(httpd_req_t *req) //browser sends commands to chang
     return ESP_OK;
 }
 
-esp_err_t helper_get_iocfg(httpd_req_t *req, const char *filepath)//helper
+esp_err_t helper_get_binary_file(httpd_req_t *req, const char *filepath)//helper
 {
     FILE *fd = NULL;
     struct stat file_stat;
-    ESP_LOGI(TAG, "helper_get_fbd : %s", filepath);
+    ESP_LOGI(TAG, "helper_get_binary_file : %s", filepath);
     if (stat(filepath, &file_stat) == -1){
         ESP_LOGE(TAG, "Failed to stat file : %s", filepath);
         httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "File does not exist");
@@ -162,7 +143,7 @@ esp_err_t helper_get_iocfg(httpd_req_t *req, const char *filepath)//helper
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read existing file");
         return ESP_FAIL;
     }
-    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_type(req, "application/octet-stream");
     /* Retrieve the pointer to scratch buffer for temporary storage */
     char *chunk = scratch;
     size_t chunksize;
@@ -185,7 +166,7 @@ esp_err_t helper_get_iocfg(httpd_req_t *req, const char *filepath)//helper
     return ESP_OK;
 }
 
-esp_err_t helper_put_iocfg(httpd_req_t *req, const char *filepath, bool overwrite)//helper
+esp_err_t helper_put_binary_file(httpd_req_t *req, const char *filepath, bool overwrite)//helper
 {
     FILE *fd = NULL;
     struct stat file_stat;
@@ -260,30 +241,11 @@ esp_err_t helper_put_iocfg(httpd_req_t *req, const char *filepath, bool overwrit
 
 esp_err_t handle_get_iocfg(httpd_req_t *req)//browser gets configuration of IOs to draw the correct user interface
 {
-    char filepath[Paths::FILE_PATH_MAX];
-    const char *filename = strrchr(req->uri, '/') + 1;
-    if (!filename)
-    {
-        return helper_get_iocfg(req, Paths::DEFAULTCFG_PATH);
-    }
-    strcpy(filepath, Paths::CFGSTORE_BASE);
-    strcpy(filepath + strlen(filepath), filename);
-    strcpy(filepath + strlen(filepath), ".json");
-    return helper_get_iocfg(req, filepath);
+    return helper_get_binary_file(req, Paths::DEFAULTCFG_PATH);
 }
 
 esp_err_t handle_put_iocfg(httpd_req_t *req)//browser sends new configuraion of IOs
 {
-    char filepath[Paths::FILE_PATH_MAX];
-    const char *filename = strrchr(req->uri, '/')+1;
-    if (!filename) {
-        ESP_LOGE(TAG, "Filename is not defined correctly");
-        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Filename is not defined correctly");
-        return ESP_FAIL;
-    }
-    strcpy(filepath, Paths::CFGSTORE_BASE);
-    strcpy(filepath+strlen(filepath), filename);
-    strcpy(filepath+strlen(filepath), ".json");
-    return helper_put_iocfg(req, filepath, false);
+    return helper_put_binary_file(req, Paths::DEFAULTCFG_PATH, true);
 }
 #undef TAG

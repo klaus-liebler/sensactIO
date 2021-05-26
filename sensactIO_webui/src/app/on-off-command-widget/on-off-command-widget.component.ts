@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { flatbuffers } from 'flatbuffers'; // located in node_modules
+import { CommunicationService } from '../communication.service';
 import * as C from '../webui_core_comm_generated';
 
 import M=C.sensact.comm;
@@ -29,7 +30,7 @@ export class OnOffCommandWidgetComponent implements OnInit, AfterViewInit {
 
   private onOffstate: M.eOnOffState = M.eOnOffState.AUTO_OFF;
 
-  constructor() { }
+  constructor(private comm:CommunicationService) { }
   ngAfterViewInit(): void {
     //this.updateUI(M.eOnOffState.AUTO_OFF);
   }
@@ -44,6 +45,31 @@ export class OnOffCommandWidgetComponent implements OnInit, AfterViewInit {
     if(this.selector && onOffstate!=this.onOffstate ){
       this.updateUI(onOffstate);
     }
+  }
+
+  private onCommand(c:M.eOnOffCommand){
+    let builder = new flatbuffers.Builder(1024);
+    let cmd=M.tOnOffCommand.createtOnOffCommand(builder, c, 0);
+    let wcmd = M.tCommand.createtCommand(builder, this.applicationId, M.uCommand.tOnOffCommand, cmd);
+    builder.finish(wcmd);
+    let arr:Uint8Array = builder.asUint8Array();
+    this.comm.putCommand(arr).subscribe((state:M.tState)=>{this.state=state});
+  }
+
+  onBtnOnClicked(){
+    console.log(`Send ON with applicationId ${this.applicationId}`);
+    this.onCommand(M.eOnOffCommand.ON);
+  }
+
+  onBtnAutoClicked(){
+    console.log(`Send AUTO with applicationId ${this.applicationId}`);
+    this.onCommand(M.eOnOffCommand.AUTO);
+    
+  }
+
+  onBtnOffClicked(){
+    console.log(`Send OFF with applicationId ${this.applicationId}`);
+    this.onCommand(M.eOnOffCommand.OFF);
   }
 
   private updateUI(newState: C.sensact.comm.eOnOffState) {

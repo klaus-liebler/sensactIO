@@ -4,15 +4,14 @@ import { IroColorPicker } from '@jaames/iro/dist/ColorPicker';
 import { flatbuffers } from 'flatbuffers'; // located in node_modules
 import { CommunicationService } from '../communication.service';
 import * as C from '../webui_core_comm_generated';
-
 import M=C.sensact.comm;
 
 @Component({
   selector: 'app-single-pwmcommand-widget',
-  templateUrl: './single-pwmcommand-widget.component.html',
-  styleUrls: ['./single-pwmcommand-widget.component.scss']
+  templateUrl: './single-pwm-command-widget.component.html',
+  styleUrls: ['./single-pwm-command-widget.component.scss']
 })
-export class SinglePWMCommandWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
+export class SinglePwmCommandWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
   public on:boolean=false;
   public intensity_0_100:number=0;
@@ -38,6 +37,7 @@ export class SinglePWMCommandWidgetComponent implements OnInit, OnDestroy, After
     this.on = r.states(i)!.state(new M.tSinglePwmState())!.on();
     this.intensity_0_100 = r.states(i)!.state(new M.tSinglePwmState())!.intensity0100();
     //this.butSpotsOnOff.style.backgroundColor=on?"green":"grey";
+    console.log(JSON.stringify({on:this.on, intensity_0_100:this.intensity_0_100, firstCallOfProcessIoCtrl:this.firstCallOfProcessIoCtrl}));
     if(this.spotsPicker && this.firstCallOfProcessIoCtrl){
       this.spotsPicker.color.setChannel("hsv", "v", this.intensity_0_100);
       this.firstCallOfProcessIoCtrl=false;
@@ -52,13 +52,14 @@ export class SinglePWMCommandWidgetComponent implements OnInit, OnDestroy, After
   }
   
 
-  public onColorChange(color, changes) {
-    this.selectedIntensity = color.hsv.v;
+  public onColorChange(color:iro.Color, changes) {
+    this.selectedIntensity = color.hsv.v ?? 0;
     let builder = new flatbuffers.Builder(1024);
     let cmd=M.tSinglePwmCommand.createtSinglePwmCommand(builder, M.eSinglePwmCommand.CHANGE_INTENSITY, this.selectedIntensity);
     let wcmd = M.tCommand.createtCommand(builder, this._applicationId, M.uCommand.tSinglePwmCommand, cmd);
     builder.finish(wcmd);
-    this.comm.putCommand(builder).subscribe((state:M.tState)=>{this.state=state});
+    let arr:Uint8Array = builder.asUint8Array();
+    this.comm.putCommand(arr).subscribe((state:M.tState)=>{this.state=state});
   }
 
   public onToggle(){
@@ -67,7 +68,8 @@ export class SinglePWMCommandWidgetComponent implements OnInit, OnDestroy, After
     let cmd=M.tSinglePwmCommand.createtSinglePwmCommand(builder, M.eSinglePwmCommand.TOGGLE, this.spotsPicker.color.hsv.v);
     let wcmd = M.tCommand.createtCommand(builder, this._applicationId, M.uCommand.tSinglePwmCommand, cmd);
     builder.finish(wcmd);
-    this.comm.putCommand(builder).subscribe((state:M.tState)=>{this.state=state});
+    let arr:Uint8Array = builder.asUint8Array();
+    this.comm.putCommand(arr).subscribe((state:M.tState)=>{this.state=state});
   }
 
   constructor(public ngZone: NgZone, private comm:CommunicationService) {
