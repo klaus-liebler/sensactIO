@@ -21,6 +21,63 @@ Manager::Manager(HAL *hal, std::vector<IOSource *> ioSources) : hal(hal), ioSour
     this->outputU16Buffer.resize(hal->GetPinCnt()+1); //+1, weil die Pins mit id 1 beginnen
     this->configurationBuffer.resize(hal->GetPinCnt()+1);//+1, weil die Pins mit id 1 beginnen
     this->outputBufferChangedBits=0;
+    this->handleCommandSemaphore = xSemaphoreCreateMutex();
+    assert(this->handleCommandSemaphore!=NULL);
+}
+/*
+1:16579944
+2:16579940
+3:16579948
+4:16579938
+5:16579946
+6:16579942
+7:16579950
+8:16579937
+9:16579945
+10:16579941
+*/
+void Manager::ReceivedFromRx470c(uint32_t val){
+    flatbuffers::FlatBufferBuilder builder(128);
+    flatbuffers::Offset<tCommand> cmd;
+    switch (val)
+    {
+    case 16579944:
+    {
+        auto xcmd = CreatetBlindCommand(builder, eBlindCommand_DOWN_OR_STOP);
+	    cmd = CreatetCommand(builder, 1, uCommand::uCommand_tBlindCommand, xcmd.Union());
+        break;
+    }
+    case 16579940:
+    {
+        auto xcmd = CreatetBlindCommand(builder, eBlindCommand_UP_OR_STOP);
+	    cmd = CreatetCommand(builder, 1, uCommand::uCommand_tBlindCommand, xcmd.Union());
+        break;
+    }
+    case 16579948:
+    {
+        auto xcmd = CreatetBlindCommand(builder, eBlindCommand_DOWN_OR_STOP);
+	    cmd = CreatetCommand(builder, 2, uCommand::uCommand_tBlindCommand, xcmd.Union());
+        break;
+    }
+    case 16579938:
+    {
+        auto xcmd = CreatetBlindCommand(builder, eBlindCommand_UP_OR_STOP);
+	    cmd = CreatetCommand(builder, 2, uCommand::uCommand_tBlindCommand, xcmd.Union());
+        break;
+    }
+    case 16579946:
+    {
+        auto xcmd = CreatetSinglePwmCommand(builder, eSinglePwmCommand_TOGGLE);
+	    cmd = CreatetCommand(builder, 3, uCommand::uCommand_tSinglePwmCommand, xcmd.Union());
+        break;
+    }
+    default:
+        return;
+    }
+    builder.Finish(cmd);
+    auto parsed_cmd = flatbuffers::GetRoot<tCommand>(builder.GetBufferPointer());
+    this->HandleCommand(parsed_cmd);
+
 }
 
 ErrorCode Manager::ConfigureIO(uint16_t pinId, IOMode mode)
@@ -45,25 +102,33 @@ ErrorCode Manager::GetBoolInputs(uint32_t *value)
     return ErrorCode::OK;
 }
 
-ErrorCode Manager::HandleCommandFromWebUI(const sensact::comm::tCommand *cmd)
+ErrorCode Manager::HandleCommand(const sensact::comm::tCommand *cmd)
 {
     uint32_t appId = cmd->applicationId();
     if (appId == 0) return ErrorCode::OK;
    
     uint16_t appIdx = appId - 1;
     if(appIdx>=apps.size()) {
-        ESP_LOGE(TAG, "HandleCommandFromWebUI INVALID_APPLICATION_ID %d", appId);
+        ESP_LOGE(TAG, "HandleCommand INVALID_APPLICATION_ID %d", appId);
         return ErrorCode::INVALID_APPLICATION_ID;
     }
-    //ESP_LOGI(TAG, "HandleCommandFromWebUI for applicationId %d", appId);
+    //ESP_LOGI(TAG, "HandleCommand for applicationId %d", appId);
     
     cApplication *app = apps.at(appIdx);
     if (!app)
     {
-        ESP_LOGE(TAG, "HandleCommandFromWebUI APPLICATION is NULL %d", appId);
+        ESP_LOGE(TAG, "HandleCommand APPLICATION is NULL %d", appId);
         return ErrorCode::INVALID_APPLICATION_ID;
     }
-    return app->ProcessCommand(cmd);
+    ESP_LOGI(TAG, "HandleCommand for ApplicationId %d", appId);
+    if( xSemaphoreTake( this->handleCommandSemaphore, ( TickType_t ) 10 ) == pdTRUE )
+    {
+        auto v = app->ProcessCommand(cmd);
+        xSemaphoreGive( this->handleCommandSemaphore);
+        return v;
+    }
+    return ErrorCode::SEMAPHORE_NOT_AVAILABLE;
+    
 }
 
 ErrorCode Manager::FillBuilderWithStateForWebUI(flatbuffers::FlatBufferBuilder *builder)

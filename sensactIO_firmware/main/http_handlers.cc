@@ -89,7 +89,7 @@ esp_err_t handle_get_iostate(httpd_req_t *req) //brwoser gets state of IOs
     Manager *manager = (Manager *)(req->user_ctx);
     flatbuffers::FlatBufferBuilder builder(512);
     manager->FillBuilderWithStateForWebUI(&builder);
-    ESP_LOGI(TAG, "HTTPd returns iostate len  %d", builder.GetSize());
+    //ESP_LOGI(TAG, "HTTPd returns iostate len  %d", builder.GetSize());
     httpd_resp_set_type(req, "application/octet-stream");
     httpd_resp_send(req, (const char *)builder.GetBufferPointer(), builder.GetSize());
     return ESP_OK;
@@ -117,9 +117,9 @@ esp_err_t handle_put_iostate(httpd_req_t *req) //browser sends commands to chang
     }
     // End response
     // Get a pointer to the root object inside the buffer.
-    //ESP_LOGI(TAG, "Received put_iostate length %d, first bytes are %x %x %x %x %x %x %x %x", req->content_len, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
+    //ESP_LOGI(TAG, "Received put_iostate length %d", req->content_len);
     auto cmd = flatbuffers::GetRoot<tCommand>(buf);
-    manager->HandleCommandFromWebUI(cmd);
+    manager->HandleCommand(cmd);
     flatbuffers::FlatBufferBuilder builder(512);
     manager->FillBuilderWithStateForWebUI(&builder);
     httpd_resp_set_type(req, "application/octet-stream");
@@ -236,6 +236,7 @@ esp_err_t helper_put_binary_file(httpd_req_t *req, const char *filepath, bool ov
     /* Close file upon upload completion */
     fclose(fd);
     httpd_resp_sendstr(req, "File uploaded successfully");
+    ESP_LOGI(TAG, "File stored successfully: %s", filepath);
     return ESP_OK;
 }
 
@@ -247,5 +248,13 @@ esp_err_t handle_get_iocfg(httpd_req_t *req)//browser gets configuration of IOs 
 esp_err_t handle_put_iocfg(httpd_req_t *req)//browser sends new configuraion of IOs
 {
     return helper_put_binary_file(req, Paths::DEFAULTCFG_PATH, true);
+}
+
+esp_err_t handle_put_devctrl(httpd_req_t *req)//browser sends new configuraion of IOs
+{
+    httpd_resp_sendstr(req, "Device will be restarted");
+    ESP_LOGI(TAG, "Device will be restarted");
+    esp_restart();
+    return ESP_OK;
 }
 #undef TAG

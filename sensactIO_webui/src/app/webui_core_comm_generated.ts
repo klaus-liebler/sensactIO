@@ -19,7 +19,9 @@ export namespace sensact.comm{
 export enum eBlindCommand{
   STOP= 0,
   UP= 1,
-  DOWN= 2
+  DOWN= 2,
+  UP_OR_STOP= 3,
+  DOWN_OR_STOP= 4
 }};
 
 /**

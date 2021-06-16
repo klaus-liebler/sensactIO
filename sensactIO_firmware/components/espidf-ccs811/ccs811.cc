@@ -25,8 +25,8 @@ namespace reg
     constexpr uint8_t BOOTLOADER_APP_DATA = 0xF2;
     constexpr uint8_t BOOTLOADER_APP_VERIFY = 0xF3;
     constexpr uint8_t BOOTLOADER_APP_START = 0xF4;
-    constexpr uint8_t SW_RESET = 0xFF;
-    constexpr uint8_t SW_RESET_VALUES[] = {0x11, 0xE5, 0x72, 0x8A};
+    uint8_t SW_RESET = 0xFF;
+    uint8_t SW_RESET_VALUES[] = {0x11, 0xE5, 0x72, 0x8A};
 };
 
 union CSS811_STATUS_REG

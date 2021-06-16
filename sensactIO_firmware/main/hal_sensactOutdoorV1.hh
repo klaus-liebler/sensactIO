@@ -18,6 +18,8 @@
 #include <ds18b20.h>
 #include <i2c.hh>
 
+#define TAG "HAL"
+
 typedef gpio_num_t Pintype;
 
 static constexpr Pintype PIN_MAINS = (Pintype)36;    //VP
@@ -54,13 +56,11 @@ static constexpr size_t LED_NUMBER = 1;
 static constexpr rmt_channel_t CHANNEL_WS2812 = RMT_CHANNEL_0;
 static constexpr rmt_channel_t CHANNEL_ONEWIRE_TX = RMT_CHANNEL_1;
 static constexpr rmt_channel_t CHANNEL_ONEWIRE_RX = RMT_CHANNEL_2;
+static constexpr rmt_channel_t CHANNEL_RX470C = RMT_CHANNEL_6;
 static constexpr i2c_port_t I2C_PORT = I2C_NUM_1;
 
 static constexpr auto PWM_RESOLUTION = LEDC_TIMER_10_BIT;
 static constexpr uint32_t PWM_FREQ = 500;
-
-constexpr uint32_t DEFAULT_VREF = 1100; //Use adc2_vref_to_gpio() to obtain a better estimate
-constexpr uint16_t sw_limits[7] = {160, 480, 1175, 1762, 2346, 2779, 3202};
 
 extern "C" void sensorTask(void *pvParameters);
 
@@ -83,22 +83,98 @@ public:
         return ErrorCode::OK;
     }
 
+    ErrorCode HardwareTest() override{
+
+        ColorizeLed(0, CRGB::Red);
+        ESP_LOGI(TAG, "WS2812 RED");
+        strip->Refresh(100);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ColorizeLed(0, CRGB::Green);
+        ESP_LOGI(TAG, "WS2812 Green");
+        strip->Refresh(100);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ColorizeLed(0, CRGB::Blue);
+        ESP_LOGI(TAG, "WS2812 Blue");
+        strip->Refresh(100);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+
+        ESP_LOGI(TAG, "RELAY1");
+        SetU16Output(pins::sensactOutdoor::RELAY1, 1);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "RELAY2");
+        SetU16Output(pins::sensactOutdoor::RELAY2, 1);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "RELAY3");
+        SetU16Output(pins::sensactOutdoor::RELAY3, 1);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "RELAY4");
+        SetU16Output(pins::sensactOutdoor::RELAY4, 1);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "RELAY5");
+        SetU16Output(pins::sensactOutdoor::RELAY5, 1);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "RELAY6");
+        SetU16Output(pins::sensactOutdoor::RELAY6, 1);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "ALL OFF");
+        SetU16Output(pins::sensactOutdoor::RELAY1, 0);
+        SetU16Output(pins::sensactOutdoor::RELAY2, 0);
+        SetU16Output(pins::sensactOutdoor::RELAY3, 0);
+        SetU16Output(pins::sensactOutdoor::RELAY4, 0);
+        SetU16Output(pins::sensactOutdoor::RELAY5, 0);
+        SetU16Output(pins::sensactOutdoor::RELAY6, 0);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+
+        ESP_LOGI(TAG, "MOSFET1");
+        SetU16Output(pins::sensactOutdoor::MOSFET1, 32000);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "MOSFET1 + 2");
+        SetU16Output(pins::sensactOutdoor::MOSFET1, UINT16_MAX);
+        SetU16Output(pins::sensactOutdoor::MOSFET2, 32000);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "MOSFET2 + 3");
+        SetU16Output(pins::sensactOutdoor::MOSFET2, UINT16_MAX);
+        SetU16Output(pins::sensactOutdoor::MOSFET3, 32000);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "MOSFET3 + 4");
+        SetU16Output(pins::sensactOutdoor::MOSFET3, UINT16_MAX);
+        SetU16Output(pins::sensactOutdoor::MOSFET4, 32000);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "MOSFET4 + 5");
+        SetU16Output(pins::sensactOutdoor::MOSFET4, UINT16_MAX);
+        SetU16Output(pins::sensactOutdoor::MOSFET5, 32000);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "MOSFET5");
+        SetU16Output(pins::sensactOutdoor::MOSFET5, UINT16_MAX);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "All MOSFET off");
+        SetU16Output(pins::sensactOutdoor::MOSFET1, 0);
+        SetU16Output(pins::sensactOutdoor::MOSFET2, 0);
+        SetU16Output(pins::sensactOutdoor::MOSFET3, 0);
+        SetU16Output(pins::sensactOutdoor::MOSFET4, 0);
+        SetU16Output(pins::sensactOutdoor::MOSFET5, 0);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        return ErrorCode::OK;
+    }
+
     ErrorCode GetBoolInputs(uint32_t *ptr){
         *ptr=0;
         return ErrorCode::OK;
     }
-    ErrorCode SetU16Output(uint16_t index, uint16_t state) override
+    ErrorCode SetU16Output(uint16_t pinId, uint16_t state) override
     {
-        if(index>=RELAY1 && index<=RELAY6){
-            index-=RELAY1;
-            gpio_set_level(RELAY_PINS[index], state); //alles !=0 wird als logisch 1 erkannt
+        if(pinId==0) return ErrorCode::OK;
+
+        if(pinId>=pins::sensactOutdoor::RELAY1 && pinId<=pins::sensactOutdoor::RELAY6){
+            pinId-=pins::sensactOutdoor::RELAY1;
+            gpio_set_level(RELAY_PINS[pinId], state); //alles !=0 wird als logisch 1 erkannt
             return ErrorCode::OK;
         }
-        if(index>=MOSFET1 && index <=LED_CC){
-            index-=MOSFET1;
+        if(pinId>=pins::sensactOutdoor::MOSFET1 && pinId <=pins::sensactOutdoor::LED_CC){
+            pinId-=pins::sensactOutdoor::MOSFET1;
             uint32_t duty = state>>(16-PWM_RESOLUTION);
-            ledc_set_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)index, duty);
-            ledc_update_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)index);
+            ledc_set_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)pinId, duty);
+            ledc_update_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)pinId);
             return ErrorCode::OK;
         }
         return ErrorCode::NONE_AVAILABLE;
@@ -110,8 +186,8 @@ public:
 
     ErrorCode ColorizeLed(uint8_t index, CRGB color) override
     {
-        CRGB colorCRGB(color);
-        strip->SetPixel((uint8_t)index, colorCRGB);
+        if(!strip) return ErrorCode::TEMPORARYLY_NOT_AVAILABLE;
+        strip->SetPixel((uint8_t)index, color);
         //TODO: Hier Prüfung, ob sich tatsächlich etwas verändert hat und ein Update tatsächlich erforderlich ist
         this->needLedStripUpdate = true;
         return ErrorCode::OK;
@@ -119,6 +195,7 @@ public:
 
     ErrorCode UnColorizeAllLed() override
     {
+        if(!strip) return ErrorCode::TEMPORARYLY_NOT_AVAILABLE;
         strip->Clear(1000);
         this->needLedStripUpdate = true;
         return ErrorCode::OK;
@@ -257,13 +334,13 @@ public:
 
     ErrorCode Setup() override
     {
-        gpio_pad_select_gpio((uint8_t)PIN_MAINS);
-        gpio_set_direction(PIN_MAINS, GPIO_MODE_INPUT);
-        gpio_set_pull_mode(PIN_MAINS, GPIO_FLOATING);
+        //gpio_pad_select_gpio((uint8_t)PIN_MAINS);
+        //gpio_set_direction(PIN_MAINS, GPIO_MODE_INPUT);
+        //gpio_set_pull_mode(PIN_MAINS, GPIO_FLOATING);
 
-        gpio_pad_select_gpio((uint8_t)PIN_IRQ);
-        gpio_set_direction(PIN_IRQ, GPIO_MODE_INPUT);
-        gpio_set_pull_mode(PIN_IRQ, GPIO_FLOATING);
+        //gpio_pad_select_gpio((uint8_t)PIN_IRQ);
+        //gpio_set_direction(PIN_IRQ, GPIO_MODE_INPUT);
+        //gpio_set_pull_mode(PIN_IRQ, GPIO_FLOATING);
 
         for (const auto &pin : RELAY_PINS)
         {
@@ -318,7 +395,10 @@ public:
         strip = new WS2812_Strip<LEDSIZE>(CHANNEL_WS2812);
         ESP_ERROR_CHECK(strip->Init(PIN_LED_STRIP));
         ESP_ERROR_CHECK(strip->Clear(100));
-        xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, NULL);
+        
+        //Read Sensors
+        //xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, NULL);
+        
         return ErrorCode::OK;
     }
 
@@ -344,3 +424,5 @@ void sensorTask(void *pvParameters)
     HAL_SensactOutdoorV1 *hal = (HAL_SensactOutdoorV1 *)pvParameters;
     hal->SensorLoop_ForInternalUseOnly();
 }
+
+#undef TAG

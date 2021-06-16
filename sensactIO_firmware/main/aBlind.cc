@@ -133,6 +133,23 @@ ErrorCode cBlind::ProcessCommand(const tCommand *msg)
 	case eBlindCommand_DOWN:
 		this->requestedState = eBlindState::eBlindState_DOWN;
 		return ErrorCode::OK;
+	case eBlindCommand::eBlindCommand_DOWN_OR_STOP:
+		if(this->currentState==eBlindState::eBlindState_STOP){
+			this->requestedState = eBlindState::eBlindState_DOWN;
+		}
+		else{
+			this->requestedState = eBlindState::eBlindState_STOP;
+		}
+		return ErrorCode::OK;
+	case eBlindCommand::eBlindCommand_UP_OR_STOP:
+		if(this->currentState==eBlindState::eBlindState_STOP){
+			this->requestedState = eBlindState::eBlindState_UP;
+		}
+		else{
+			this->requestedState = eBlindState::eBlindState_STOP;
+		}
+		return ErrorCode::OK;
+
 	default:
 		return ErrorCode::INVALID_COMMAND;
 	}

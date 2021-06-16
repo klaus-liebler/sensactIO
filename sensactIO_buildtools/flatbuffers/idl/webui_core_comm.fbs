@@ -11,6 +11,8 @@ enum eBlindCommand:byte{
   STOP,
   UP,
   DOWN,
+  UP_OR_STOP,
+  DOWN_OR_STOP,
 }
 
 enum eSinglePwmCommand:byte{

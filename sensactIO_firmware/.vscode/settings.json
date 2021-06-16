@@ -1,3 +1,19 @@
 {
-  "C_Cpp.intelliSenseEngine": "Tag Parser"
+  "C_Cpp.intelliSenseEngine": "Tag Parser",
+  "idf.portWin": "COM4",
+  "files.associations": {
+    "random": "cpp",
+    "optional": "cpp",
+    "istream": "cpp",
+    "ostream": "cpp",
+    "ratio": "cpp",
+    "system_error": "cpp",
+    "array": "cpp",
+    "functional": "cpp",
+    "tuple": "cpp",
+    "type_traits": "cpp",
+    "utility": "cpp",
+    "*.ipp": "cpp"
+  },
+  "idf.flashType": "UART"
 }

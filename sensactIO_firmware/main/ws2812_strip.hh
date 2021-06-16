@@ -100,7 +100,7 @@ public:
         return Refresh(timeout_ms);
     }
    
-    esp_err_t Init(gpio_num_t gpio){
+    esp_err_t Init(const gpio_num_t gpio){
         rmt_config_t config;
         config.rmt_mode=RMT_MODE_TX;
         config.channel=this->channel;

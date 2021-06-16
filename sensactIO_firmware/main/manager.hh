@@ -2,9 +2,11 @@
 #include "esp_log.h"
 #include "common.hh"
 #include "applicationBase.hh"
+#include <rx470c.hh>
 #include <vector>
+#include <freertos/semphr.h>
 
-class Manager:public PostOffice, public InputOutput
+class Manager:public PostOffice, public InputOutput, public Rx470cCallback
 {
 private:
     HAL * const hal;
@@ -16,9 +18,10 @@ private:
     uint32_t inputsBuffer;
     std::vector<IOMode> configurationBuffer;
     bool reconfigurationRequestOccured{false};
+    SemaphoreHandle_t handleCommandSemaphore = NULL;
 public:
     Manager(HAL *hal, std::vector<IOSource *> ioSources);
-    ErrorCode HandleCommandFromWebUI(const sensact::comm::tCommand *cmd);
+    ErrorCode HandleCommand(const sensact::comm::tCommand *cmd);
     ErrorCode FillBuilderWithStateForWebUI(flatbuffers::FlatBufferBuilder *builder);
     ErrorCode Setup();
     ErrorCode Loop();
@@ -26,4 +29,5 @@ public:
     ErrorCode ConfigureIO(uint16_t index, IOMode mode) override;
     ErrorCode SetU16Output(uint16_t index, uint16_t state) override;
     ErrorCode GetBoolInputs(uint32_t *value) override;
+    void ReceivedFromRx470c(uint32_t val) override;
 };

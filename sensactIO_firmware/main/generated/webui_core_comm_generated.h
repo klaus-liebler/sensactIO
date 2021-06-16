@@ -91,31 +91,37 @@ enum eBlindCommand {
   eBlindCommand_STOP = 0,
   eBlindCommand_UP = 1,
   eBlindCommand_DOWN = 2,
+  eBlindCommand_UP_OR_STOP = 3,
+  eBlindCommand_DOWN_OR_STOP = 4,
   eBlindCommand_MIN = eBlindCommand_STOP,
-  eBlindCommand_MAX = eBlindCommand_DOWN
+  eBlindCommand_MAX = eBlindCommand_DOWN_OR_STOP
 };
 
-inline const eBlindCommand (&EnumValueseBlindCommand())[3] {
+inline const eBlindCommand (&EnumValueseBlindCommand())[5] {
   static const eBlindCommand values[] = {
     eBlindCommand_STOP,
     eBlindCommand_UP,
-    eBlindCommand_DOWN
+    eBlindCommand_DOWN,
+    eBlindCommand_UP_OR_STOP,
+    eBlindCommand_DOWN_OR_STOP
   };
   return values;
 }
 
 inline const char * const *EnumNameseBlindCommand() {
-  static const char * const names[4] = {
+  static const char * const names[6] = {
     "STOP",
     "UP",
     "DOWN",
+    "UP_OR_STOP",
+    "DOWN_OR_STOP",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameeBlindCommand(eBlindCommand e) {
-  if (flatbuffers::IsOutRange(e, eBlindCommand_STOP, eBlindCommand_DOWN)) return "";
+  if (flatbuffers::IsOutRange(e, eBlindCommand_STOP, eBlindCommand_DOWN_OR_STOP)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNameseBlindCommand()[index];
 }

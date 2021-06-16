@@ -148,6 +148,7 @@ public:
     virtual int64_t GetMillis64() = 0;
     virtual ErrorCode AfterLoop() = 0;
     virtual ErrorCode BeforeLoop() = 0;
+    virtual ErrorCode HardwareTest()=0;
 };
 
 class PostOffice

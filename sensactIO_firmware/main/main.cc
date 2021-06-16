@@ -20,19 +20,26 @@
 
 #include "ws2812_strip.hh"
 #include "esp_log.h"
-#include "hal_wroverKitV41.hh"
+#include "hal_sensactOutdoorV1.hh"
 #include "manager.hh"
 #include "i2c_io.hh"
 #include "i2c_mem.hh"
+#include "rx470c.hh"
 #include "spiffs.hh"
 
 #define TAG "main"
 I2C_IO * const i2c_io = new I2C_IO();
 I2C_MemoryEmulation i2c_mem(I2C_NUM_0, i2c_io);
 std::vector<IOSource*> ioSources{i2c_io};
-HAL *hal = new HAL_WroverKitV41();
+
+
+
+//HAL *hal = new HAL_WroverKitV41();
+HAL *hal = new HAL_SensactOutdoorV1();
 Manager *manager=new Manager(hal, ioSources);
 
+PT2262Decoder decoder;
+RX470C rx470c{CHANNEL_RX470C, &decoder, manager};
 
 extern "C"
 {
@@ -45,7 +52,7 @@ void managerTask(void *pvParameters)
     //Setup'ed is: HAL and i2c_mem
     ESP_LOGI(TAG, "managerTask started");
     TickType_t xLastWakeTime{0};
-    const TickType_t xTimeIncrement = 1000/portTICK_PERIOD_MS;
+    const TickType_t xTimeIncrement = 200/portTICK_PERIOD_MS;
     xLastWakeTime = xTaskGetTickCount();
     manager->Setup();
     while (true)
@@ -86,6 +93,13 @@ static const httpd_uri_t put_iocfg = {
     .user_ctx = manager,
 };
 
+static const httpd_uri_t put_devctrl = {
+    .uri       = "/devctrl",
+    .method    = HTTP_PUT,
+    .handler   = handle_put_devctrl,
+    .user_ctx = manager,
+};
+
 static const httpd_uri_t get_common = {
     .uri       = "/*",
     .method    = HTTP_GET,
@@ -111,6 +125,7 @@ static httpd_handle_t start_webserver(void)
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &get_iostate));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &put_iocfg));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &get_iocfg));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &put_devctrl));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &get_common));
     return server;
 }
@@ -169,17 +184,22 @@ void _lab_error_check_failed(ErrorCode rc, const char *file, int line, const cha
 
 void app_main(void)
 {
-    
+    int i = 0;
     printf("=======================================================\n");
     esp_log_level_set(TAG, ESP_LOG_INFO);
     ESP_ERROR_CHECK(SpiffsManager::Init());
+    ESP_LOGI(TAG, "Init rx470c");
+    ESP_ERROR_CHECK(rx470c.Init(PIN_IRQ, 1));
+    ESP_ERROR_CHECK(rx470c.Start());
+    
     ESP_LOGI(TAG, "Init HAL");
     LAB_ERROR_CHECK(hal->Setup());
+    //LAB_ERROR_CHECK(hal->HardwareTest());
     ESP_LOGI(TAG, "Init i2c_mem adapter @%d ",CONFIG_I2C_SLAVE_ADDRESS);
     ESP_ERROR_CHECK(i2c_mem.Setup(PIN_I2C_SCL, PIN_I2C_SDA, CONFIG_I2C_SLAVE_ADDRESS, false, 0));
-    
+
     xTaskCreate(managerTask, "managerTask", 4096 * 4, NULL, 6, NULL);
-    int i = 0;
+    
 
     static httpd_handle_t server;
     ESP_ERROR_CHECK(nvs_flash_init());
@@ -192,15 +212,15 @@ void app_main(void)
     server = start_webserver(); //Start the server for the first time
 
     //xTaskCreate(experimentTask, "experimentTask", 1024 * 2, NULL, 5, NULL);
-    
-    
-
     while (true)
     {
         printf("Start was %d seconds ago. Free heap: %d\n", i, esp_get_free_heap_size());
         i += 5;
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
+    
+
+    
     printf("Restarting now.\n");
     fflush(stdout);
     esp_restart();

@@ -19,7 +19,7 @@ esp_err_t I2C::Init()
     return ESP_OK;
 }
 
-esp_err_t I2C::WriteReg(const i2c_port_t port, uint8_t address7bit, uint8_t reg_addr, const uint8_t *reg_data, size_t len)
+esp_err_t I2C::WriteReg(const i2c_port_t port, uint8_t address7bit, uint8_t reg_addr, uint8_t *reg_data, size_t len)
 {
     if (!xSemaphoreTake(locks[port], 1000 / portTICK_RATE_MS))
     {
@@ -106,7 +106,7 @@ esp_err_t I2C::Read(const i2c_port_t port, uint8_t address7bit, uint8_t *data, s
     return espRc;
 }
 
-esp_err_t I2C::Write(const i2c_port_t port, uint8_t address7bit, const uint8_t *data, size_t len){
+esp_err_t I2C::Write(const i2c_port_t port, uint8_t address7bit, uint8_t *data, size_t len){
     if (!xSemaphoreTake(locks[port], 1000 / portTICK_RATE_MS))
     {
         ESP_LOGE(TAG, "Could not take port mutex %d", port);
