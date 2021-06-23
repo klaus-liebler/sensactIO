@@ -6,7 +6,7 @@
 #include <vector>
 #include <freertos/semphr.h>
 
-class Manager:public PostOffice, public InputOutput, public Rx470cCallback
+class Manager:public PostOffice, public InputOutput
 {
 private:
     HAL * const hal;
@@ -29,5 +29,4 @@ public:
     ErrorCode ConfigureIO(uint16_t index, IOMode mode) override;
     ErrorCode SetU16Output(uint16_t index, uint16_t state) override;
     ErrorCode GetBoolInputs(uint32_t *value) override;
-    void ReceivedFromRx470c(uint32_t val) override;
 };

@@ -10,7 +10,7 @@ private:
 	const eRelayInterlockMode mode;
 	const uint32_t time_up_msecs;
 	const uint32_t time_down_msecs;
-	uint32_t lastChanged;
+	Time_t lastChanged;
 	eBlindState currentState;
 	eBlindState requestedState;
 	void up(SensactContext *ctx);

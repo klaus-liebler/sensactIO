@@ -24,61 +24,7 @@ Manager::Manager(HAL *hal, std::vector<IOSource *> ioSources) : hal(hal), ioSour
     this->handleCommandSemaphore = xSemaphoreCreateMutex();
     assert(this->handleCommandSemaphore!=NULL);
 }
-/*
-1:16579944
-2:16579940
-3:16579948
-4:16579938
-5:16579946
-6:16579942
-7:16579950
-8:16579937
-9:16579945
-10:16579941
-*/
-void Manager::ReceivedFromRx470c(uint32_t val){
-    flatbuffers::FlatBufferBuilder builder(128);
-    flatbuffers::Offset<tCommand> cmd;
-    switch (val)
-    {
-    case 16579944:
-    {
-        auto xcmd = CreatetBlindCommand(builder, eBlindCommand_DOWN_OR_STOP);
-	    cmd = CreatetCommand(builder, 1, uCommand::uCommand_tBlindCommand, xcmd.Union());
-        break;
-    }
-    case 16579940:
-    {
-        auto xcmd = CreatetBlindCommand(builder, eBlindCommand_UP_OR_STOP);
-	    cmd = CreatetCommand(builder, 1, uCommand::uCommand_tBlindCommand, xcmd.Union());
-        break;
-    }
-    case 16579948:
-    {
-        auto xcmd = CreatetBlindCommand(builder, eBlindCommand_DOWN_OR_STOP);
-	    cmd = CreatetCommand(builder, 2, uCommand::uCommand_tBlindCommand, xcmd.Union());
-        break;
-    }
-    case 16579938:
-    {
-        auto xcmd = CreatetBlindCommand(builder, eBlindCommand_UP_OR_STOP);
-	    cmd = CreatetCommand(builder, 2, uCommand::uCommand_tBlindCommand, xcmd.Union());
-        break;
-    }
-    case 16579946:
-    {
-        auto xcmd = CreatetSinglePwmCommand(builder, eSinglePwmCommand_TOGGLE);
-	    cmd = CreatetCommand(builder, 3, uCommand::uCommand_tSinglePwmCommand, xcmd.Union());
-        break;
-    }
-    default:
-        return;
-    }
-    builder.Finish(cmd);
-    auto parsed_cmd = flatbuffers::GetRoot<tCommand>(builder.GetBufferPointer());
-    this->HandleCommand(parsed_cmd);
 
-}
 
 ErrorCode Manager::ConfigureIO(uint16_t pinId, IOMode mode)
 {
@@ -123,9 +69,12 @@ ErrorCode Manager::HandleCommand(const sensact::comm::tCommand *cmd)
     ESP_LOGI(TAG, "HandleCommand for ApplicationId %d", appId);
     if( xSemaphoreTake( this->handleCommandSemaphore, ( TickType_t ) 10 ) == pdTRUE )
     {
-        auto v = app->ProcessCommand(cmd);
+        ErrorCode err = app->ProcessCommand(cmd);
         xSemaphoreGive( this->handleCommandSemaphore);
-        return v;
+        if(err!=ErrorCode::OK){
+            ESP_LOGW(TAG, "HandleCommand for ApplicationId %d returned error %d", appId, (int)err);
+        }
+        return err;
     }
     return ErrorCode::SEMAPHORE_NOT_AVAILABLE;
     
