@@ -4,6 +4,7 @@
 #include "manager.hh"
 #include "aBlind.hh"
 #include "aSinglePwm.hh"
+#include "aRgbwPwm.hh"
 #include "aOnOff.hh"
 #include "paths_and_files.hh"
 #include "cJSON.h"
@@ -141,6 +142,10 @@ ErrorCode Manager::Setup()
             break;
         case uConfig_tSinglePwmConfig:
             apps[i] = cSinglePWM::Build(id, x);
+            break;
+        case uConfig_tRgbwPwmConfig:
+            apps[i] = cSinglePWM::Build(id, x);
+            break;
         default:
             continue;
         }

@@ -18,6 +18,10 @@
 #include <ds18b20.h>
 #include <i2c.hh>
 
+//Outputs 1...6 sind die sechs Relays
+//Outputs 7..11 sind die fünf MOSFETS
+//Output 12 ist der Constant Current LED Treiber
+
 #define TAG "HAL"
 
 typedef gpio_num_t Pintype;
@@ -28,6 +32,7 @@ static constexpr Pintype PIN_SW = (Pintype)34;
 static constexpr Pintype PIN_PROG_IO0 = (Pintype)0;
 static constexpr Pintype PIN_PROG_TX = (Pintype)1;
 static constexpr Pintype PIN_SPI_CE = (Pintype)2;
+//static constexpr Pintype PIN_SPI_CSN = (Pintype)2; in V2
 static constexpr Pintype PIN_PROG_RX = (Pintype)3;
 static constexpr Pintype PIN_I2C_SCL = (Pintype)4;
 static constexpr Pintype PIN_LED_STRIP = (Pintype)5;
@@ -37,6 +42,7 @@ static constexpr Pintype PIN_CANR = (Pintype)14;
 static constexpr Pintype PIN_SPI_SCLK = (Pintype)14;
 static constexpr Pintype PIN_ONEWIRE = (Pintype)15;
 static constexpr Pintype PIN_SPI_CSN = (Pintype)15;
+//static constexpr Pintype PIN_SPI_CE = (Pintype)15; in V2
 static constexpr Pintype PIN_I2C_SDA = (Pintype)16;
 static constexpr Pintype PIN_K6 = (Pintype)17;
 static constexpr Pintype PIN_K5 = (Pintype)18;
@@ -147,16 +153,25 @@ public:
         SetU16Output(pins::sensactOutdoor::MOSFET4, UINT16_MAX);
         SetU16Output(pins::sensactOutdoor::MOSFET5, 32000);
         vTaskDelay(500/portTICK_PERIOD_MS);
-        ESP_LOGI(TAG, "MOSFET5");
+        ESP_LOGI(TAG, "MOSFET5 + LED_CC");
         SetU16Output(pins::sensactOutdoor::MOSFET5, UINT16_MAX);
-        vTaskDelay(500/portTICK_PERIOD_MS);
-        ESP_LOGI(TAG, "All MOSFET off");
+        SetU16Output(pins::sensactOutdoor::LED_CC, 16000);
+        vTaskDelay(250/portTICK_PERIOD_MS);
+        SetU16Output(pins::sensactOutdoor::LED_CC, 32000);
+        vTaskDelay(250/portTICK_PERIOD_MS);
+        SetU16Output(pins::sensactOutdoor::LED_CC, UINT16_MAX);
+        vTaskDelay(250/portTICK_PERIOD_MS);
+         SetU16Output(pins::sensactOutdoor::LED_CC, 32000);
+        vTaskDelay(250/portTICK_PERIOD_MS);
+         SetU16Output(pins::sensactOutdoor::LED_CC, 16000);
+        vTaskDelay(250/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "All MOSFET off & LED_CC off");
         SetU16Output(pins::sensactOutdoor::MOSFET1, 0);
         SetU16Output(pins::sensactOutdoor::MOSFET2, 0);
         SetU16Output(pins::sensactOutdoor::MOSFET3, 0);
         SetU16Output(pins::sensactOutdoor::MOSFET4, 0);
         SetU16Output(pins::sensactOutdoor::MOSFET5, 0);
-        vTaskDelay(500/portTICK_PERIOD_MS);
+        SetU16Output(pins::sensactOutdoor::LED_CC, 0);
         return ErrorCode::OK;
     }
 

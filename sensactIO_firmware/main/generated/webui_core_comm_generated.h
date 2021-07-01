@@ -15,6 +15,9 @@ struct tBlindStateBuilder;
 struct tSinglePwmState;
 struct tSinglePwmStateBuilder;
 
+struct tRgbwPwmState;
+struct tRgbwPwmStateBuilder;
+
 struct tOnOffState;
 struct tOnOffStateBuilder;
 
@@ -30,6 +33,9 @@ struct tBlindCommandBuilder;
 struct tSinglePwmCommand;
 struct tSinglePwmCommandBuilder;
 
+struct tRgbwPwmCommand;
+struct tRgbwPwmCommandBuilder;
+
 struct tOnOffCommand;
 struct tOnOffCommandBuilder;
 
@@ -41,6 +47,9 @@ struct tBlindConfigBuilder;
 
 struct tSinglePwmConfig;
 struct tSinglePwmConfigBuilder;
+
+struct tRgbwPwmConfig;
+struct tRgbwPwmConfigBuilder;
 
 struct tOnOffConfig;
 struct tOnOffConfigBuilder;
@@ -128,22 +137,28 @@ inline const char *EnumNameeBlindCommand(eBlindCommand e) {
 
 enum eSinglePwmCommand {
   eSinglePwmCommand_TOGGLE = 0,
-  eSinglePwmCommand_CHANGE_INTENSITY = 1,
+  eSinglePwmCommand_ON = 1,
+  eSinglePwmCommand_OFF = 2,
+  eSinglePwmCommand_CHANGE_INTENSITY = 3,
   eSinglePwmCommand_MIN = eSinglePwmCommand_TOGGLE,
   eSinglePwmCommand_MAX = eSinglePwmCommand_CHANGE_INTENSITY
 };
 
-inline const eSinglePwmCommand (&EnumValueseSinglePwmCommand())[2] {
+inline const eSinglePwmCommand (&EnumValueseSinglePwmCommand())[4] {
   static const eSinglePwmCommand values[] = {
     eSinglePwmCommand_TOGGLE,
+    eSinglePwmCommand_ON,
+    eSinglePwmCommand_OFF,
     eSinglePwmCommand_CHANGE_INTENSITY
   };
   return values;
 }
 
 inline const char * const *EnumNameseSinglePwmCommand() {
-  static const char * const names[3] = {
+  static const char * const names[5] = {
     "TOGGLE",
+    "ON",
+    "OFF",
     "CHANGE_INTENSITY",
     nullptr
   };
@@ -154,6 +169,63 @@ inline const char *EnumNameeSinglePwmCommand(eSinglePwmCommand e) {
   if (flatbuffers::IsOutRange(e, eSinglePwmCommand_TOGGLE, eSinglePwmCommand_CHANGE_INTENSITY)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNameseSinglePwmCommand()[index];
+}
+
+enum eRgbwPwmCommand {
+  eRgbwPwmCommand_TOGGLE = 0,
+  eRgbwPwmCommand_ON = 1,
+  eRgbwPwmCommand_OFF = 2,
+  eRgbwPwmCommand_CHANGE_HUE_0_360 = 3,
+  eRgbwPwmCommand_CHANGE_SATURATION_0_1 = 4,
+  eRgbwPwmCommand_CHANGE_VALUE_0_1 = 5,
+  eRgbwPwmCommand_CHANGE_R_0_255 = 6,
+  eRgbwPwmCommand_CHANGE_G_0_255 = 7,
+  eRgbwPwmCommand_CHANGE_B_0_255 = 8,
+  eRgbwPwmCommand_CHANGE_WWCW_BRIGHTNESS_0_1 = 9,
+  eRgbwPwmCommand_CHANGE_WWCW_RATIO_0_1 = 10,
+  eRgbwPwmCommand_MIN = eRgbwPwmCommand_TOGGLE,
+  eRgbwPwmCommand_MAX = eRgbwPwmCommand_CHANGE_WWCW_RATIO_0_1
+};
+
+inline const eRgbwPwmCommand (&EnumValueseRgbwPwmCommand())[11] {
+  static const eRgbwPwmCommand values[] = {
+    eRgbwPwmCommand_TOGGLE,
+    eRgbwPwmCommand_ON,
+    eRgbwPwmCommand_OFF,
+    eRgbwPwmCommand_CHANGE_HUE_0_360,
+    eRgbwPwmCommand_CHANGE_SATURATION_0_1,
+    eRgbwPwmCommand_CHANGE_VALUE_0_1,
+    eRgbwPwmCommand_CHANGE_R_0_255,
+    eRgbwPwmCommand_CHANGE_G_0_255,
+    eRgbwPwmCommand_CHANGE_B_0_255,
+    eRgbwPwmCommand_CHANGE_WWCW_BRIGHTNESS_0_1,
+    eRgbwPwmCommand_CHANGE_WWCW_RATIO_0_1
+  };
+  return values;
+}
+
+inline const char * const *EnumNameseRgbwPwmCommand() {
+  static const char * const names[12] = {
+    "TOGGLE",
+    "ON",
+    "OFF",
+    "CHANGE_HUE_0_360",
+    "CHANGE_SATURATION_0_1",
+    "CHANGE_VALUE_0_1",
+    "CHANGE_R_0_255",
+    "CHANGE_G_0_255",
+    "CHANGE_B_0_255",
+    "CHANGE_WWCW_BRIGHTNESS_0_1",
+    "CHANGE_WWCW_RATIO_0_1",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameeRgbwPwmCommand(eRgbwPwmCommand e) {
+  if (flatbuffers::IsOutRange(e, eRgbwPwmCommand_TOGGLE, eRgbwPwmCommand_CHANGE_WWCW_RATIO_0_1)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNameseRgbwPwmCommand()[index];
 }
 
 enum eOnOffCommand {
@@ -236,33 +308,36 @@ enum uState {
   uState_tBlindState = 1,
   uState_tSinglePwmState = 2,
   uState_tOnOffState = 3,
+  uState_tRgbwPwmState = 4,
   uState_MIN = uState_NONE,
-  uState_MAX = uState_tOnOffState
+  uState_MAX = uState_tRgbwPwmState
 };
 
-inline const uState (&EnumValuesuState())[4] {
+inline const uState (&EnumValuesuState())[5] {
   static const uState values[] = {
     uState_NONE,
     uState_tBlindState,
     uState_tSinglePwmState,
-    uState_tOnOffState
+    uState_tOnOffState,
+    uState_tRgbwPwmState
   };
   return values;
 }
 
 inline const char * const *EnumNamesuState() {
-  static const char * const names[5] = {
+  static const char * const names[6] = {
     "NONE",
     "tBlindState",
     "tSinglePwmState",
     "tOnOffState",
+    "tRgbwPwmState",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameuState(uState e) {
-  if (flatbuffers::IsOutRange(e, uState_NONE, uState_tOnOffState)) return "";
+  if (flatbuffers::IsOutRange(e, uState_NONE, uState_tRgbwPwmState)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesuState()[index];
 }
@@ -283,6 +358,10 @@ template<> struct uStateTraits<sensact::comm::tOnOffState> {
   static const uState enum_value = uState_tOnOffState;
 };
 
+template<> struct uStateTraits<sensact::comm::tRgbwPwmState> {
+  static const uState enum_value = uState_tRgbwPwmState;
+};
+
 bool VerifyuState(flatbuffers::Verifier &verifier, const void *obj, uState type);
 bool VerifyuStateVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
 
@@ -291,33 +370,36 @@ enum uCommand {
   uCommand_tBlindCommand = 1,
   uCommand_tSinglePwmCommand = 2,
   uCommand_tOnOffCommand = 3,
+  uCommand_tRgbwPwmCommand = 4,
   uCommand_MIN = uCommand_NONE,
-  uCommand_MAX = uCommand_tOnOffCommand
+  uCommand_MAX = uCommand_tRgbwPwmCommand
 };
 
-inline const uCommand (&EnumValuesuCommand())[4] {
+inline const uCommand (&EnumValuesuCommand())[5] {
   static const uCommand values[] = {
     uCommand_NONE,
     uCommand_tBlindCommand,
     uCommand_tSinglePwmCommand,
-    uCommand_tOnOffCommand
+    uCommand_tOnOffCommand,
+    uCommand_tRgbwPwmCommand
   };
   return values;
 }
 
 inline const char * const *EnumNamesuCommand() {
-  static const char * const names[5] = {
+  static const char * const names[6] = {
     "NONE",
     "tBlindCommand",
     "tSinglePwmCommand",
     "tOnOffCommand",
+    "tRgbwPwmCommand",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameuCommand(uCommand e) {
-  if (flatbuffers::IsOutRange(e, uCommand_NONE, uCommand_tOnOffCommand)) return "";
+  if (flatbuffers::IsOutRange(e, uCommand_NONE, uCommand_tRgbwPwmCommand)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesuCommand()[index];
 }
@@ -336,6 +418,10 @@ template<> struct uCommandTraits<sensact::comm::tSinglePwmCommand> {
 
 template<> struct uCommandTraits<sensact::comm::tOnOffCommand> {
   static const uCommand enum_value = uCommand_tOnOffCommand;
+};
+
+template<> struct uCommandTraits<sensact::comm::tRgbwPwmCommand> {
+  static const uCommand enum_value = uCommand_tRgbwPwmCommand;
 };
 
 bool VerifyuCommand(flatbuffers::Verifier &verifier, const void *obj, uCommand type);
@@ -388,33 +474,36 @@ enum uConfig {
   uConfig_tBlindConfig = 1,
   uConfig_tSinglePwmConfig = 2,
   uConfig_tOnOffConfig = 3,
+  uConfig_tRgbwPwmConfig = 4,
   uConfig_MIN = uConfig_NONE,
-  uConfig_MAX = uConfig_tOnOffConfig
+  uConfig_MAX = uConfig_tRgbwPwmConfig
 };
 
-inline const uConfig (&EnumValuesuConfig())[4] {
+inline const uConfig (&EnumValuesuConfig())[5] {
   static const uConfig values[] = {
     uConfig_NONE,
     uConfig_tBlindConfig,
     uConfig_tSinglePwmConfig,
-    uConfig_tOnOffConfig
+    uConfig_tOnOffConfig,
+    uConfig_tRgbwPwmConfig
   };
   return values;
 }
 
 inline const char * const *EnumNamesuConfig() {
-  static const char * const names[5] = {
+  static const char * const names[6] = {
     "NONE",
     "tBlindConfig",
     "tSinglePwmConfig",
     "tOnOffConfig",
+    "tRgbwPwmConfig",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameuConfig(uConfig e) {
-  if (flatbuffers::IsOutRange(e, uConfig_NONE, uConfig_tOnOffConfig)) return "";
+  if (flatbuffers::IsOutRange(e, uConfig_NONE, uConfig_tRgbwPwmConfig)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesuConfig()[index];
 }
@@ -433,6 +522,10 @@ template<> struct uConfigTraits<sensact::comm::tSinglePwmConfig> {
 
 template<> struct uConfigTraits<sensact::comm::tOnOffConfig> {
   static const uConfig enum_value = uConfig_tOnOffConfig;
+};
+
+template<> struct uConfigTraits<sensact::comm::tRgbwPwmConfig> {
+  static const uConfig enum_value = uConfig_tRgbwPwmConfig;
 };
 
 bool VerifyuConfig(flatbuffers::Verifier &verifier, const void *obj, uConfig type);
@@ -493,18 +586,18 @@ inline flatbuffers::Offset<tBlindState> CreatetBlindState(
 struct tSinglePwmState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef tSinglePwmStateBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_INTENSITY0_100 = 4,
+    VT_INTENSITY_0_1 = 4,
     VT_ON = 6
   };
-  uint8_t intensity0_100() const {
-    return GetField<uint8_t>(VT_INTENSITY0_100, 0);
+  float intensity_0_1() const {
+    return GetField<float>(VT_INTENSITY_0_1, 0.0f);
   }
   bool on() const {
     return GetField<uint8_t>(VT_ON, 0) != 0;
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint8_t>(verifier, VT_INTENSITY0_100) &&
+           VerifyField<float>(verifier, VT_INTENSITY_0_1) &&
            VerifyField<uint8_t>(verifier, VT_ON) &&
            verifier.EndTable();
   }
@@ -514,8 +607,8 @@ struct tSinglePwmStateBuilder {
   typedef tSinglePwmState Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_intensity0_100(uint8_t intensity0_100) {
-    fbb_.AddElement<uint8_t>(tSinglePwmState::VT_INTENSITY0_100, intensity0_100, 0);
+  void add_intensity_0_1(float intensity_0_1) {
+    fbb_.AddElement<float>(tSinglePwmState::VT_INTENSITY_0_1, intensity_0_1, 0.0f);
   }
   void add_on(bool on) {
     fbb_.AddElement<uint8_t>(tSinglePwmState::VT_ON, static_cast<uint8_t>(on), 0);
@@ -534,11 +627,103 @@ struct tSinglePwmStateBuilder {
 
 inline flatbuffers::Offset<tSinglePwmState> CreatetSinglePwmState(
     flatbuffers::FlatBufferBuilder &_fbb,
-    uint8_t intensity0_100 = 0,
+    float intensity_0_1 = 0.0f,
     bool on = false) {
   tSinglePwmStateBuilder builder_(_fbb);
+  builder_.add_intensity_0_1(intensity_0_1);
   builder_.add_on(on);
-  builder_.add_intensity0_100(intensity0_100);
+  return builder_.Finish();
+}
+
+struct tRgbwPwmState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef tRgbwPwmStateBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_R = 4,
+    VT_G = 6,
+    VT_B = 8,
+    VT_WW = 10,
+    VT_CW = 12,
+    VT_ON = 14
+  };
+  uint8_t r() const {
+    return GetField<uint8_t>(VT_R, 0);
+  }
+  uint8_t g() const {
+    return GetField<uint8_t>(VT_G, 0);
+  }
+  uint8_t b() const {
+    return GetField<uint8_t>(VT_B, 0);
+  }
+  float ww() const {
+    return GetField<float>(VT_WW, 0.0f);
+  }
+  float cw() const {
+    return GetField<float>(VT_CW, 0.0f);
+  }
+  bool on() const {
+    return GetField<uint8_t>(VT_ON, 0) != 0;
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_R) &&
+           VerifyField<uint8_t>(verifier, VT_G) &&
+           VerifyField<uint8_t>(verifier, VT_B) &&
+           VerifyField<float>(verifier, VT_WW) &&
+           VerifyField<float>(verifier, VT_CW) &&
+           VerifyField<uint8_t>(verifier, VT_ON) &&
+           verifier.EndTable();
+  }
+};
+
+struct tRgbwPwmStateBuilder {
+  typedef tRgbwPwmState Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_r(uint8_t r) {
+    fbb_.AddElement<uint8_t>(tRgbwPwmState::VT_R, r, 0);
+  }
+  void add_g(uint8_t g) {
+    fbb_.AddElement<uint8_t>(tRgbwPwmState::VT_G, g, 0);
+  }
+  void add_b(uint8_t b) {
+    fbb_.AddElement<uint8_t>(tRgbwPwmState::VT_B, b, 0);
+  }
+  void add_ww(float ww) {
+    fbb_.AddElement<float>(tRgbwPwmState::VT_WW, ww, 0.0f);
+  }
+  void add_cw(float cw) {
+    fbb_.AddElement<float>(tRgbwPwmState::VT_CW, cw, 0.0f);
+  }
+  void add_on(bool on) {
+    fbb_.AddElement<uint8_t>(tRgbwPwmState::VT_ON, static_cast<uint8_t>(on), 0);
+  }
+  explicit tRgbwPwmStateBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  tRgbwPwmStateBuilder &operator=(const tRgbwPwmStateBuilder &);
+  flatbuffers::Offset<tRgbwPwmState> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<tRgbwPwmState>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<tRgbwPwmState> CreatetRgbwPwmState(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t r = 0,
+    uint8_t g = 0,
+    uint8_t b = 0,
+    float ww = 0.0f,
+    float cw = 0.0f,
+    bool on = false) {
+  tRgbwPwmStateBuilder builder_(_fbb);
+  builder_.add_cw(cw);
+  builder_.add_ww(ww);
+  builder_.add_on(on);
+  builder_.add_b(b);
+  builder_.add_g(g);
+  builder_.add_r(r);
   return builder_.Finish();
 }
 
@@ -610,6 +795,9 @@ struct tStateWrapper FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const sensact::comm::tOnOffState *state_as_tOnOffState() const {
     return state_type() == sensact::comm::uState_tOnOffState ? static_cast<const sensact::comm::tOnOffState *>(state()) : nullptr;
   }
+  const sensact::comm::tRgbwPwmState *state_as_tRgbwPwmState() const {
+    return state_type() == sensact::comm::uState_tRgbwPwmState ? static_cast<const sensact::comm::tRgbwPwmState *>(state()) : nullptr;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_APPLICATIONID) &&
@@ -630,6 +818,10 @@ template<> inline const sensact::comm::tSinglePwmState *tStateWrapper::state_as<
 
 template<> inline const sensact::comm::tOnOffState *tStateWrapper::state_as<sensact::comm::tOnOffState>() const {
   return state_as_tOnOffState();
+}
+
+template<> inline const sensact::comm::tRgbwPwmState *tStateWrapper::state_as<sensact::comm::tRgbwPwmState>() const {
+  return state_as_tRgbwPwmState();
 }
 
 struct tStateWrapperBuilder {
@@ -780,18 +972,18 @@ struct tSinglePwmCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef tSinglePwmCommandBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CMD = 4,
-    VT_INTENSITY0_100 = 6
+    VT_INTENSITY_0_1 = 6
   };
   sensact::comm::eSinglePwmCommand cmd() const {
     return static_cast<sensact::comm::eSinglePwmCommand>(GetField<int8_t>(VT_CMD, 0));
   }
-  uint8_t intensity0_100() const {
-    return GetField<uint8_t>(VT_INTENSITY0_100, 0);
+  uint8_t intensity_0_1() const {
+    return GetField<uint8_t>(VT_INTENSITY_0_1, 0);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_CMD) &&
-           VerifyField<uint8_t>(verifier, VT_INTENSITY0_100) &&
+           VerifyField<uint8_t>(verifier, VT_INTENSITY_0_1) &&
            verifier.EndTable();
   }
 };
@@ -803,8 +995,8 @@ struct tSinglePwmCommandBuilder {
   void add_cmd(sensact::comm::eSinglePwmCommand cmd) {
     fbb_.AddElement<int8_t>(tSinglePwmCommand::VT_CMD, static_cast<int8_t>(cmd), 0);
   }
-  void add_intensity0_100(uint8_t intensity0_100) {
-    fbb_.AddElement<uint8_t>(tSinglePwmCommand::VT_INTENSITY0_100, intensity0_100, 0);
+  void add_intensity_0_1(uint8_t intensity_0_1) {
+    fbb_.AddElement<uint8_t>(tSinglePwmCommand::VT_INTENSITY_0_1, intensity_0_1, 0);
   }
   explicit tSinglePwmCommandBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -821,9 +1013,61 @@ struct tSinglePwmCommandBuilder {
 inline flatbuffers::Offset<tSinglePwmCommand> CreatetSinglePwmCommand(
     flatbuffers::FlatBufferBuilder &_fbb,
     sensact::comm::eSinglePwmCommand cmd = sensact::comm::eSinglePwmCommand_TOGGLE,
-    uint8_t intensity0_100 = 0) {
+    uint8_t intensity_0_1 = 0) {
   tSinglePwmCommandBuilder builder_(_fbb);
-  builder_.add_intensity0_100(intensity0_100);
+  builder_.add_intensity_0_1(intensity_0_1);
+  builder_.add_cmd(cmd);
+  return builder_.Finish();
+}
+
+struct tRgbwPwmCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef tRgbwPwmCommandBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CMD = 4,
+    VT_PAYLOAD = 6
+  };
+  sensact::comm::eRgbwPwmCommand cmd() const {
+    return static_cast<sensact::comm::eRgbwPwmCommand>(GetField<int8_t>(VT_CMD, 0));
+  }
+  float payload() const {
+    return GetField<float>(VT_PAYLOAD, 0.0f);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int8_t>(verifier, VT_CMD) &&
+           VerifyField<float>(verifier, VT_PAYLOAD) &&
+           verifier.EndTable();
+  }
+};
+
+struct tRgbwPwmCommandBuilder {
+  typedef tRgbwPwmCommand Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_cmd(sensact::comm::eRgbwPwmCommand cmd) {
+    fbb_.AddElement<int8_t>(tRgbwPwmCommand::VT_CMD, static_cast<int8_t>(cmd), 0);
+  }
+  void add_payload(float payload) {
+    fbb_.AddElement<float>(tRgbwPwmCommand::VT_PAYLOAD, payload, 0.0f);
+  }
+  explicit tRgbwPwmCommandBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  tRgbwPwmCommandBuilder &operator=(const tRgbwPwmCommandBuilder &);
+  flatbuffers::Offset<tRgbwPwmCommand> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<tRgbwPwmCommand>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<tRgbwPwmCommand> CreatetRgbwPwmCommand(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    sensact::comm::eRgbwPwmCommand cmd = sensact::comm::eRgbwPwmCommand_TOGGLE,
+    float payload = 0.0f) {
+  tRgbwPwmCommandBuilder builder_(_fbb);
+  builder_.add_payload(payload);
   builder_.add_cmd(cmd);
   return builder_.Finish();
 }
@@ -906,6 +1150,9 @@ struct tCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const sensact::comm::tOnOffCommand *command_as_tOnOffCommand() const {
     return command_type() == sensact::comm::uCommand_tOnOffCommand ? static_cast<const sensact::comm::tOnOffCommand *>(command()) : nullptr;
   }
+  const sensact::comm::tRgbwPwmCommand *command_as_tRgbwPwmCommand() const {
+    return command_type() == sensact::comm::uCommand_tRgbwPwmCommand ? static_cast<const sensact::comm::tRgbwPwmCommand *>(command()) : nullptr;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_APPLICATIONID) &&
@@ -926,6 +1173,10 @@ template<> inline const sensact::comm::tSinglePwmCommand *tCommand::command_as<s
 
 template<> inline const sensact::comm::tOnOffCommand *tCommand::command_as<sensact::comm::tOnOffCommand>() const {
   return command_as_tOnOffCommand();
+}
+
+template<> inline const sensact::comm::tRgbwPwmCommand *tCommand::command_as<sensact::comm::tRgbwPwmCommand>() const {
+  return command_as_tRgbwPwmCommand();
 }
 
 struct tCommandBuilder {
@@ -1119,6 +1370,108 @@ inline flatbuffers::Offset<tSinglePwmConfig> CreatetSinglePwmConfig(
   return builder_.Finish();
 }
 
+struct tRgbwPwmConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef tRgbwPwmConfigBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PWMR = 4,
+    VT_PWMG = 6,
+    VT_PWMB = 8,
+    VT_PWMWW = 10,
+    VT_PWMCW = 12,
+    VT_IDOFSTANDBYCONTROLLER = 14,
+    VT_AUTOOFFMSECS = 16
+  };
+  uint16_t pwmR() const {
+    return GetField<uint16_t>(VT_PWMR, 0);
+  }
+  uint16_t pwmG() const {
+    return GetField<uint16_t>(VT_PWMG, 0);
+  }
+  uint16_t pwmB() const {
+    return GetField<uint16_t>(VT_PWMB, 0);
+  }
+  uint16_t pwmWW() const {
+    return GetField<uint16_t>(VT_PWMWW, 0);
+  }
+  uint16_t pwmCW() const {
+    return GetField<uint16_t>(VT_PWMCW, 0);
+  }
+  uint16_t idOfStandbyController() const {
+    return GetField<uint16_t>(VT_IDOFSTANDBYCONTROLLER, 0);
+  }
+  uint32_t autoOffMsecs() const {
+    return GetField<uint32_t>(VT_AUTOOFFMSECS, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_PWMR) &&
+           VerifyField<uint16_t>(verifier, VT_PWMG) &&
+           VerifyField<uint16_t>(verifier, VT_PWMB) &&
+           VerifyField<uint16_t>(verifier, VT_PWMWW) &&
+           VerifyField<uint16_t>(verifier, VT_PWMCW) &&
+           VerifyField<uint16_t>(verifier, VT_IDOFSTANDBYCONTROLLER) &&
+           VerifyField<uint32_t>(verifier, VT_AUTOOFFMSECS) &&
+           verifier.EndTable();
+  }
+};
+
+struct tRgbwPwmConfigBuilder {
+  typedef tRgbwPwmConfig Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_pwmR(uint16_t pwmR) {
+    fbb_.AddElement<uint16_t>(tRgbwPwmConfig::VT_PWMR, pwmR, 0);
+  }
+  void add_pwmG(uint16_t pwmG) {
+    fbb_.AddElement<uint16_t>(tRgbwPwmConfig::VT_PWMG, pwmG, 0);
+  }
+  void add_pwmB(uint16_t pwmB) {
+    fbb_.AddElement<uint16_t>(tRgbwPwmConfig::VT_PWMB, pwmB, 0);
+  }
+  void add_pwmWW(uint16_t pwmWW) {
+    fbb_.AddElement<uint16_t>(tRgbwPwmConfig::VT_PWMWW, pwmWW, 0);
+  }
+  void add_pwmCW(uint16_t pwmCW) {
+    fbb_.AddElement<uint16_t>(tRgbwPwmConfig::VT_PWMCW, pwmCW, 0);
+  }
+  void add_idOfStandbyController(uint16_t idOfStandbyController) {
+    fbb_.AddElement<uint16_t>(tRgbwPwmConfig::VT_IDOFSTANDBYCONTROLLER, idOfStandbyController, 0);
+  }
+  void add_autoOffMsecs(uint32_t autoOffMsecs) {
+    fbb_.AddElement<uint32_t>(tRgbwPwmConfig::VT_AUTOOFFMSECS, autoOffMsecs, 0);
+  }
+  explicit tRgbwPwmConfigBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  tRgbwPwmConfigBuilder &operator=(const tRgbwPwmConfigBuilder &);
+  flatbuffers::Offset<tRgbwPwmConfig> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<tRgbwPwmConfig>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<tRgbwPwmConfig> CreatetRgbwPwmConfig(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    uint16_t pwmR = 0,
+    uint16_t pwmG = 0,
+    uint16_t pwmB = 0,
+    uint16_t pwmWW = 0,
+    uint16_t pwmCW = 0,
+    uint16_t idOfStandbyController = 0,
+    uint32_t autoOffMsecs = 0) {
+  tRgbwPwmConfigBuilder builder_(_fbb);
+  builder_.add_autoOffMsecs(autoOffMsecs);
+  builder_.add_idOfStandbyController(idOfStandbyController);
+  builder_.add_pwmCW(pwmCW);
+  builder_.add_pwmWW(pwmWW);
+  builder_.add_pwmB(pwmB);
+  builder_.add_pwmG(pwmG);
+  builder_.add_pwmR(pwmR);
+  return builder_.Finish();
+}
+
 struct tOnOffConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef tOnOffConfigBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -1203,6 +1556,9 @@ struct tConfigWrapper FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const sensact::comm::tOnOffConfig *config_as_tOnOffConfig() const {
     return config_type() == sensact::comm::uConfig_tOnOffConfig ? static_cast<const sensact::comm::tOnOffConfig *>(config()) : nullptr;
   }
+  const sensact::comm::tRgbwPwmConfig *config_as_tRgbwPwmConfig() const {
+    return config_type() == sensact::comm::uConfig_tRgbwPwmConfig ? static_cast<const sensact::comm::tRgbwPwmConfig *>(config()) : nullptr;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_CONFIG_TYPE) &&
@@ -1222,6 +1578,10 @@ template<> inline const sensact::comm::tSinglePwmConfig *tConfigWrapper::config_
 
 template<> inline const sensact::comm::tOnOffConfig *tConfigWrapper::config_as<sensact::comm::tOnOffConfig>() const {
   return config_as_tOnOffConfig();
+}
+
+template<> inline const sensact::comm::tRgbwPwmConfig *tConfigWrapper::config_as<sensact::comm::tRgbwPwmConfig>() const {
+  return config_as_tRgbwPwmConfig();
 }
 
 struct tConfigWrapperBuilder {
@@ -1338,6 +1698,10 @@ inline bool VerifyuState(flatbuffers::Verifier &verifier, const void *obj, uStat
       auto ptr = reinterpret_cast<const sensact::comm::tOnOffState *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case uState_tRgbwPwmState: {
+      auto ptr = reinterpret_cast<const sensact::comm::tRgbwPwmState *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     default: return true;
   }
 }
@@ -1371,6 +1735,10 @@ inline bool VerifyuCommand(flatbuffers::Verifier &verifier, const void *obj, uCo
       auto ptr = reinterpret_cast<const sensact::comm::tOnOffCommand *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case uCommand_tRgbwPwmCommand: {
+      auto ptr = reinterpret_cast<const sensact::comm::tRgbwPwmCommand *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     default: return true;
   }
 }
@@ -1402,6 +1770,10 @@ inline bool VerifyuConfig(flatbuffers::Verifier &verifier, const void *obj, uCon
     }
     case uConfig_tOnOffConfig: {
       auto ptr = reinterpret_cast<const sensact::comm::tOnOffConfig *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case uConfig_tRgbwPwmConfig: {
+      auto ptr = reinterpret_cast<const sensact::comm::tRgbwPwmConfig *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;

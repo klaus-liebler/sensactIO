@@ -21,8 +21,13 @@ let vect=[];
     vect.push(wCfg);
 }
 {
-    let cfg=M.tSinglePwmConfig.createtSinglePwmConfig(builder, 7, 11, 0, 10000);
+    let cfg=M.tSinglePwmConfig.createtSinglePwmConfig(builder, 12, 12, 0, 10000);
     let wCfg = M.tConfigWrapper.createtConfigWrapper(builder, C.sensact.comm.uConfig.tSinglePwmConfig, cfg);
+    vect.push(wCfg);
+}
+{
+    let cfg=M.tRgbwPwmConfig.createtRgbwPwmConfig(builder, 7, 8, 9, 10, 11, 0, 10000);
+    let wCfg = M.tConfigWrapper.createtConfigWrapper(builder, C.sensact.comm.uConfig.tRgbwPwmConfig, cfg);
     vect.push(wCfg);
 }
 let cfg_vect = C.sensact.comm.tIoConfig.createConfigsVector(builder, vect);

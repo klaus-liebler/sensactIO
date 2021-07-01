@@ -49,9 +49,10 @@ constexpr char rf24_pa_dbm[][8] = {"PA_MIN", "PA_LOW", "PA_HIGH", "PA_MAX"};
 
 	void Nrf24Receiver::Setup(spi_host_device_t hostDevice, int dmaChannel, gpio_num_t ce_pin, gpio_num_t csn_pin, gpio_num_t miso_pin, gpio_num_t mosi_pin, gpio_num_t sclk_pin)
 	{
+		this->cePin = ce_pin;
 		gpio_pad_select_gpio(ce_pin);
 		gpio_set_direction(ce_pin, GPIO_MODE_OUTPUT);
-		gpio_set_level(ce_pin, 0);
+		ceLow();
 
 		spi_bus_config_t spi_bus_config{};
 
@@ -73,7 +74,7 @@ constexpr char rf24_pa_dbm[][8] = {"PA_MIN", "PA_LOW", "PA_HIGH", "PA_MAX"};
 		spi_device_handle_t handle;
 		ESP_ERROR_CHECK(spi_bus_add_device(hostDevice, &devcfg, &handle));
 
-		cePin = ce_pin;
+		
 		_SPIHandle = handle;
 		payloadLen = 32;
 	}

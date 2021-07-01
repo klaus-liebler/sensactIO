@@ -30,7 +30,27 @@ export enum eBlindCommand{
 export namespace sensact.comm{
 export enum eSinglePwmCommand{
   TOGGLE= 0,
-  CHANGE_INTENSITY= 1
+  ON= 1,
+  OFF= 2,
+  CHANGE_INTENSITY= 3
+}};
+
+/**
+ * @enum {number}
+ */
+export namespace sensact.comm{
+export enum eRgbwPwmCommand{
+  TOGGLE= 0,
+  ON= 1,
+  OFF= 2,
+  CHANGE_HUE_0_360= 3,
+  CHANGE_SATURATION_0_1= 4,
+  CHANGE_VALUE_0_1= 5,
+  CHANGE_R_0_255= 6,
+  CHANGE_G_0_255= 7,
+  CHANGE_B_0_255= 8,
+  CHANGE_WWCW_BRIGHTNESS_0_1= 9,
+  CHANGE_WWCW_RATIO_0_1= 10
 }};
 
 /**
@@ -64,7 +84,8 @@ export enum uState{
   NONE= 0,
   tBlindState= 1,
   tSinglePwmState= 2,
-  tOnOffState= 3
+  tOnOffState= 3,
+  tRgbwPwmState= 4
 }};
 
 /**
@@ -75,7 +96,8 @@ export enum uCommand{
   NONE= 0,
   tBlindCommand= 1,
   tSinglePwmCommand= 2,
-  tOnOffCommand= 3
+  tOnOffCommand= 3,
+  tRgbwPwmCommand= 4
 }};
 
 /**
@@ -99,7 +121,8 @@ export enum uConfig{
   NONE= 0,
   tBlindConfig= 1,
   tSinglePwmConfig= 2,
-  tOnOffConfig= 3
+  tOnOffConfig= 3,
+  tRgbwPwmConfig= 4
 }};
 
 /**
@@ -237,9 +260,9 @@ static getSizePrefixedRootAstSinglePwmState(bb:flatbuffers.ByteBuffer, obj?:tSin
 /**
  * @returns number
  */
-intensity0100():number {
+intensity01():number {
   var offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
@@ -259,10 +282,10 @@ static starttSinglePwmState(builder:flatbuffers.Builder) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number intensity0100
+ * @param number intensity01
  */
-static addIntensity0100(builder:flatbuffers.Builder, intensity0100:number) {
-  builder.addFieldInt8(0, intensity0100, 0);
+static addIntensity01(builder:flatbuffers.Builder, intensity01:number) {
+  builder.addFieldFloat32(0, intensity01, 0.0);
 };
 
 /**
@@ -282,11 +305,173 @@ static endtSinglePwmState(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createtSinglePwmState(builder:flatbuffers.Builder, intensity0100:number, on:boolean):flatbuffers.Offset {
+static createtSinglePwmState(builder:flatbuffers.Builder, intensity01:number, on:boolean):flatbuffers.Offset {
   tSinglePwmState.starttSinglePwmState(builder);
-  tSinglePwmState.addIntensity0100(builder, intensity0100);
+  tSinglePwmState.addIntensity01(builder, intensity01);
   tSinglePwmState.addOn(builder, on);
   return tSinglePwmState.endtSinglePwmState(builder);
+}
+}
+}
+/**
+ * @constructor
+ */
+export namespace sensact.comm{
+export class tRgbwPwmState {
+  bb: flatbuffers.ByteBuffer|null = null;
+
+  bb_pos:number = 0;
+/**
+ * @param number i
+ * @param flatbuffers.ByteBuffer bb
+ * @returns tRgbwPwmState
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):tRgbwPwmState {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param tRgbwPwmState= obj
+ * @returns tRgbwPwmState
+ */
+static getRootAstRgbwPwmState(bb:flatbuffers.ByteBuffer, obj?:tRgbwPwmState):tRgbwPwmState {
+  return (obj || new tRgbwPwmState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param tRgbwPwmState= obj
+ * @returns tRgbwPwmState
+ */
+static getSizePrefixedRootAstRgbwPwmState(bb:flatbuffers.ByteBuffer, obj?:tRgbwPwmState):tRgbwPwmState {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new tRgbwPwmState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns number
+ */
+r():number {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+g():number {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+b():number {
+  var offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+ww():number {
+  var offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+cw():number {
+  var offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns boolean
+ */
+on():boolean {
+  var offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ */
+static starttRgbwPwmState(builder:flatbuffers.Builder) {
+  builder.startObject(6);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number r
+ */
+static addR(builder:flatbuffers.Builder, r:number) {
+  builder.addFieldInt8(0, r, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number g
+ */
+static addG(builder:flatbuffers.Builder, g:number) {
+  builder.addFieldInt8(1, g, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number b
+ */
+static addB(builder:flatbuffers.Builder, b:number) {
+  builder.addFieldInt8(2, b, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number ww
+ */
+static addWw(builder:flatbuffers.Builder, ww:number) {
+  builder.addFieldFloat32(3, ww, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number cw
+ */
+static addCw(builder:flatbuffers.Builder, cw:number) {
+  builder.addFieldFloat32(4, cw, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param boolean on
+ */
+static addOn(builder:flatbuffers.Builder, on:boolean) {
+  builder.addFieldInt8(5, +on, +false);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endtRgbwPwmState(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
+static createtRgbwPwmState(builder:flatbuffers.Builder, r:number, g:number, b:number, ww:number, cw:number, on:boolean):flatbuffers.Offset {
+  tRgbwPwmState.starttRgbwPwmState(builder);
+  tRgbwPwmState.addR(builder, r);
+  tRgbwPwmState.addG(builder, g);
+  tRgbwPwmState.addB(builder, b);
+  tRgbwPwmState.addWw(builder, ww);
+  tRgbwPwmState.addCw(builder, cw);
+  tRgbwPwmState.addOn(builder, on);
+  return tRgbwPwmState.endtRgbwPwmState(builder);
 }
 }
 }
@@ -730,7 +915,7 @@ cmd():sensact.comm.eSinglePwmCommand {
 /**
  * @returns number
  */
-intensity0100():number {
+intensity01():number {
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
 };
@@ -752,10 +937,10 @@ static addCmd(builder:flatbuffers.Builder, cmd:sensact.comm.eSinglePwmCommand) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number intensity0100
+ * @param number intensity01
  */
-static addIntensity0100(builder:flatbuffers.Builder, intensity0100:number) {
-  builder.addFieldInt8(1, intensity0100, 0);
+static addIntensity01(builder:flatbuffers.Builder, intensity01:number) {
+  builder.addFieldInt8(1, intensity01, 0);
 };
 
 /**
@@ -767,11 +952,105 @@ static endtSinglePwmCommand(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createtSinglePwmCommand(builder:flatbuffers.Builder, cmd:sensact.comm.eSinglePwmCommand, intensity0100:number):flatbuffers.Offset {
+static createtSinglePwmCommand(builder:flatbuffers.Builder, cmd:sensact.comm.eSinglePwmCommand, intensity01:number):flatbuffers.Offset {
   tSinglePwmCommand.starttSinglePwmCommand(builder);
   tSinglePwmCommand.addCmd(builder, cmd);
-  tSinglePwmCommand.addIntensity0100(builder, intensity0100);
+  tSinglePwmCommand.addIntensity01(builder, intensity01);
   return tSinglePwmCommand.endtSinglePwmCommand(builder);
+}
+}
+}
+/**
+ * @constructor
+ */
+export namespace sensact.comm{
+export class tRgbwPwmCommand {
+  bb: flatbuffers.ByteBuffer|null = null;
+
+  bb_pos:number = 0;
+/**
+ * @param number i
+ * @param flatbuffers.ByteBuffer bb
+ * @returns tRgbwPwmCommand
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):tRgbwPwmCommand {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param tRgbwPwmCommand= obj
+ * @returns tRgbwPwmCommand
+ */
+static getRootAstRgbwPwmCommand(bb:flatbuffers.ByteBuffer, obj?:tRgbwPwmCommand):tRgbwPwmCommand {
+  return (obj || new tRgbwPwmCommand()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param tRgbwPwmCommand= obj
+ * @returns tRgbwPwmCommand
+ */
+static getSizePrefixedRootAstRgbwPwmCommand(bb:flatbuffers.ByteBuffer, obj?:tRgbwPwmCommand):tRgbwPwmCommand {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new tRgbwPwmCommand()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns sensact.comm.eRgbwPwmCommand
+ */
+cmd():sensact.comm.eRgbwPwmCommand {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : sensact.comm.eRgbwPwmCommand.TOGGLE;
+};
+
+/**
+ * @returns number
+ */
+payload():number {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ */
+static starttRgbwPwmCommand(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param sensact.comm.eRgbwPwmCommand cmd
+ */
+static addCmd(builder:flatbuffers.Builder, cmd:sensact.comm.eRgbwPwmCommand) {
+  builder.addFieldInt8(0, cmd, sensact.comm.eRgbwPwmCommand.TOGGLE);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number payload
+ */
+static addPayload(builder:flatbuffers.Builder, payload:number) {
+  builder.addFieldFloat32(1, payload, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endtRgbwPwmCommand(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
+static createtRgbwPwmCommand(builder:flatbuffers.Builder, cmd:sensact.comm.eRgbwPwmCommand, payload:number):flatbuffers.Offset {
+  tRgbwPwmCommand.starttRgbwPwmCommand(builder);
+  tRgbwPwmCommand.addCmd(builder, cmd);
+  tRgbwPwmCommand.addPayload(builder, payload);
+  return tRgbwPwmCommand.endtRgbwPwmCommand(builder);
 }
 }
 }
@@ -1251,6 +1530,185 @@ static createtSinglePwmConfig(builder:flatbuffers.Builder, pwmFirst:number, pwmL
   tSinglePwmConfig.addIdOfStandbyController(builder, idOfStandbyController);
   tSinglePwmConfig.addAutoOffMsecs(builder, autoOffMsecs);
   return tSinglePwmConfig.endtSinglePwmConfig(builder);
+}
+}
+}
+/**
+ * @constructor
+ */
+export namespace sensact.comm{
+export class tRgbwPwmConfig {
+  bb: flatbuffers.ByteBuffer|null = null;
+
+  bb_pos:number = 0;
+/**
+ * @param number i
+ * @param flatbuffers.ByteBuffer bb
+ * @returns tRgbwPwmConfig
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):tRgbwPwmConfig {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param tRgbwPwmConfig= obj
+ * @returns tRgbwPwmConfig
+ */
+static getRootAstRgbwPwmConfig(bb:flatbuffers.ByteBuffer, obj?:tRgbwPwmConfig):tRgbwPwmConfig {
+  return (obj || new tRgbwPwmConfig()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param tRgbwPwmConfig= obj
+ * @returns tRgbwPwmConfig
+ */
+static getSizePrefixedRootAstRgbwPwmConfig(bb:flatbuffers.ByteBuffer, obj?:tRgbwPwmConfig):tRgbwPwmConfig {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new tRgbwPwmConfig()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns number
+ */
+pwmR():number {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint16(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+pwmG():number {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint16(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+pwmB():number {
+  var offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint16(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+pwmWW():number {
+  var offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint16(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+pwmCW():number {
+  var offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint16(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+idOfStandbyController():number {
+  var offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readUint16(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+autoOffMsecs():number {
+  var offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ */
+static starttRgbwPwmConfig(builder:flatbuffers.Builder) {
+  builder.startObject(7);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number pwmR
+ */
+static addPwmR(builder:flatbuffers.Builder, pwmR:number) {
+  builder.addFieldInt16(0, pwmR, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number pwmG
+ */
+static addPwmG(builder:flatbuffers.Builder, pwmG:number) {
+  builder.addFieldInt16(1, pwmG, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number pwmB
+ */
+static addPwmB(builder:flatbuffers.Builder, pwmB:number) {
+  builder.addFieldInt16(2, pwmB, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number pwmWW
+ */
+static addPwmWW(builder:flatbuffers.Builder, pwmWW:number) {
+  builder.addFieldInt16(3, pwmWW, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number pwmCW
+ */
+static addPwmCW(builder:flatbuffers.Builder, pwmCW:number) {
+  builder.addFieldInt16(4, pwmCW, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number idOfStandbyController
+ */
+static addIdOfStandbyController(builder:flatbuffers.Builder, idOfStandbyController:number) {
+  builder.addFieldInt16(5, idOfStandbyController, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number autoOffMsecs
+ */
+static addAutoOffMsecs(builder:flatbuffers.Builder, autoOffMsecs:number) {
+  builder.addFieldInt32(6, autoOffMsecs, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endtRgbwPwmConfig(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
+static createtRgbwPwmConfig(builder:flatbuffers.Builder, pwmR:number, pwmG:number, pwmB:number, pwmWW:number, pwmCW:number, idOfStandbyController:number, autoOffMsecs:number):flatbuffers.Offset {
+  tRgbwPwmConfig.starttRgbwPwmConfig(builder);
+  tRgbwPwmConfig.addPwmR(builder, pwmR);
+  tRgbwPwmConfig.addPwmG(builder, pwmG);
+  tRgbwPwmConfig.addPwmB(builder, pwmB);
+  tRgbwPwmConfig.addPwmWW(builder, pwmWW);
+  tRgbwPwmConfig.addPwmCW(builder, pwmCW);
+  tRgbwPwmConfig.addIdOfStandbyController(builder, idOfStandbyController);
+  tRgbwPwmConfig.addAutoOffMsecs(builder, autoOffMsecs);
+  return tRgbwPwmConfig.endtRgbwPwmConfig(builder);
 }
 }
 }

@@ -6,7 +6,7 @@
 
 
 cSinglePWM::cSinglePWM(uint32_t id, const uint16_t pwmFirst, const uint16_t pwmLast, uint32_t autoOffMsecs, uint32_t idOfStandbyController):
-	cApplication(id), pwmFirst(pwmFirst), pwmLast(pwmLast), autoOffMsecs(autoOffMsecs), idOfStandbyController(idOfStandbyController), intensity0_100(50), on(false), changed(false)
+	cApplication(id), pwmFirst(pwmFirst), pwmLast(pwmLast), autoOffMsecs(autoOffMsecs), idOfStandbyController(idOfStandbyController), intensity_0_1(0.5), on(false), changed(false)
 {
 	ESP_LOGI(TAG, "Build cSinglePWM for id:%d, pwmFirst:%d autoOffMsecs:%d idOfStandbyController:%d", id, pwmFirst, autoOffMsecs, idOfStandbyController);
 }
@@ -46,24 +46,16 @@ ErrorCode cSinglePWM::Loop(SensactContext *ctx)
 		}
 		return ErrorCode::OK;
 	}
-
-	if(this->intensity0_100==100){
-		for(int out=pwmFirst;out<=pwmLast;out++){
-			ctx->io->SetU16Output(out, UINT16_MAX);//wenn voll an, dann auch wirklich voll an...
-		}
-	}
-	else {
-		float val=this->intensity0_100*((float)UINT16_MAX/100.0);
-		for(int out=pwmFirst;out<=pwmLast;out++){
-			ctx->io->SetU16Output(out, val);//...weil hier ja 0en reingeschoben würden
-		}
+	float val=this->intensity_0_1>0.99?UINT16_MAX:this->intensity_0_1*(float)UINT16_MAX;
+	for(int out=pwmFirst;out<=pwmLast;out++){
+		ctx->io->SetU16Output(out, val);
 	}
 	return ErrorCode::OK;
 }
 
 
 ErrorCode cSinglePWM::FillStatus(flatbuffers::FlatBufferBuilder *builder, std::vector<flatbuffers::Offset<tStateWrapper>> *status_vector){
-	auto x = CreatetSinglePwmState(*builder, this->intensity0_100, this->on);
+	auto x = CreatetSinglePwmState(*builder, this->intensity_0_1, this->on);
 	auto state = CreatetStateWrapper(*builder, this->id, uState::uState_tSinglePwmState, x.Union());
 	status_vector->push_back(state);
 	return ErrorCode::OK;
@@ -79,12 +71,26 @@ ErrorCode cSinglePWM::ProcessCommand(const tCommand* msg){
 	case eSinglePwmCommand_TOGGLE:
 		this->on=!this->on;
 		this->changed=true;
-		ESP_LOGI(TAG, "eSinglePwmCommand_TOGGLE for id %d, now %s", id, on ? "true" : "false");
+		ESP_LOGI(TAG, "eSinglePwmCommand_TOGGLE for id %d, now %s", id, on ? "on" : "off");
+		break;
+	case eSinglePwmCommand_ON:
+		if(!this->on){
+			on=true;
+			changed=true;
+			ESP_LOGI(TAG, "eSinglePwmCommand_ON for id %d, now %s", id, on ? "on" : "off");
+		}
+		break;
+	case eSinglePwmCommand_OFF:
+		if(this->on){
+			on=false;
+			changed=true;
+			ESP_LOGI(TAG, "eSinglePwmCommand_OFF for id %d, now %s", id, on ? "on" : "off");
+		}
 		break;
 	case eSinglePwmCommand_CHANGE_INTENSITY:
-		this->intensity0_100 = cmd->intensity0_100();
+		this->intensity_0_1 = cmd->intensity_0_1();
 		this->changed=true;
-		ESP_LOGI(TAG, "eSinglePwmCommand_CHANGE_INTENSITY for id %d, now %d", id, intensity0_100);
+		ESP_LOGI(TAG, "eSinglePwmCommand_CHANGE_INTENSITY for id %d, now %f", id, intensity_0_1);
 		break;
 	default:
 		return ErrorCode::INVALID_COMMAND;

@@ -17,7 +17,23 @@ enum eBlindCommand:byte{
 
 enum eSinglePwmCommand:byte{
   TOGGLE,
+  ON,
+  OFF,
   CHANGE_INTENSITY,
+}
+
+enum eRgbwPwmCommand:byte{
+  TOGGLE,
+  ON,
+  OFF,
+  CHANGE_HUE_0_360,
+  CHANGE_SATURATION_0_1,
+  CHANGE_VALUE_0_1,
+  CHANGE_R_0_255,
+  CHANGE_G_0_255,
+  CHANGE_B_0_255,
+  CHANGE_WWCW_BRIGHTNESS_0_1,
+  CHANGE_WWCW_RATIO_0_1,
 }
 
 enum eOnOffCommand:byte{
@@ -41,7 +57,16 @@ table tBlindState{
 }
 
 table tSinglePwmState{
-  intensity0_100:uint8;
+  intensity_0_1:float;
+  on:bool;
+}
+
+table tRgbwPwmState{
+  r:uint8;
+  g:uint8;
+  b:uint8;
+  ww:float;
+  cw:float;
   on:bool;
 }
 
@@ -49,7 +74,7 @@ table tOnOffState{
   state:eOnOffState;
 }
 
-union uState { tBlindState, tSinglePwmState, tOnOffState }
+union uState { tBlindState, tSinglePwmState, tOnOffState, tRgbwPwmState }
 table tStateWrapper{
   applicationId:uint32;
   state:uState;
@@ -65,7 +90,12 @@ table tBlindCommand{
 
 table tSinglePwmCommand{
   cmd:eSinglePwmCommand;
-  intensity0_100:uint8;
+  intensity_0_1:uint8;
+}
+
+table tRgbwPwmCommand{
+  cmd:eRgbwPwmCommand;
+  payload:float;
 }
 
 table tOnOffCommand{
@@ -77,6 +107,7 @@ union uCommand{
   tBlindCommand,
   tSinglePwmCommand,
   tOnOffCommand,
+  tRgbwPwmCommand,
 }
 
 table tCommand{
@@ -108,13 +139,23 @@ table tSinglePwmConfig{
   autoOffMsecs:uint32;
 }
 
+table tRgbwPwmConfig{
+  pwmR:uint16;
+  pwmG:uint16;
+  pwmB:uint16;
+  pwmWW:uint16;
+  pwmCW:uint16;
+  idOfStandbyController:uint16;
+  autoOffMsecs:uint32;
+}
+
 table tOnOffConfig{
   relay:uint16;
 	autoOffMsecs:uint32;
 	initialState:eOnOffState;
 }
 
-union uConfig { tBlindConfig, tSinglePwmConfig, tOnOffConfig}
+union uConfig { tBlindConfig, tSinglePwmConfig, tOnOffConfig, tRgbwPwmConfig}
 
 table tConfigWrapper{
   config:uConfig;

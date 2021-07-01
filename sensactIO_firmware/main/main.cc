@@ -327,7 +327,7 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Init HAL");
     LAB_ERROR_CHECK(hal->Setup());
-    //LAB_ERROR_CHECK(hal->HardwareTest());
+    LAB_ERROR_CHECK(hal->HardwareTest());
     ESP_LOGI(TAG, "Init i2c_mem adapter @%d ", CONFIG_I2C_SLAVE_ADDRESS);
     ESP_ERROR_CHECK(i2c_mem.Setup(PIN_I2C_SCL, PIN_I2C_SDA, CONFIG_I2C_SLAVE_ADDRESS, false, 0));
 

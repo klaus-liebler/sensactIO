@@ -10,7 +10,7 @@ private:
 	const uint16_t pwmLast;
 	uint32_t autoOffMsecs;
 	uint32_t idOfStandbyController;
-	uint8_t intensity0_100;
+	float intensity_0_1{0};
 	bool on;
 	bool changed;
 	Time_t lastChanged=0;

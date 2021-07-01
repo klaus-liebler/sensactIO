@@ -14,11 +14,9 @@ import M=C.sensact.comm;
 export class SinglePwmCommandWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
   public on:boolean=false;
-  public intensity_0_100:number=0;
+  public intensity_0_1:number=0;
   private spotsPicker: IroColorPicker;
   private firstCallOfProcessIoCtrl=true;
-
-  public selectedIntensity: number;
 
   @ViewChild('iro')
   public iroDiv: ElementRef;
@@ -35,11 +33,11 @@ export class SinglePwmCommandWidgetComponent implements OnInit, OnDestroy, After
       return;
     }
     this.on = r.states(i)!.state(new M.tSinglePwmState())!.on();
-    this.intensity_0_100 = r.states(i)!.state(new M.tSinglePwmState())!.intensity0100();
+    this.intensity_0_1 = r.states(i)!.state(new M.tSinglePwmState())!.intensity01();
     //this.butSpotsOnOff.style.backgroundColor=on?"green":"grey";
-    console.log(JSON.stringify({on:this.on, intensity_0_100:this.intensity_0_100, firstCallOfProcessIoCtrl:this.firstCallOfProcessIoCtrl}));
+    console.log(JSON.stringify({on:this.on, intensity_0_100:this.intensity_0_1, firstCallOfProcessIoCtrl:this.firstCallOfProcessIoCtrl}));
     if(this.spotsPicker && this.firstCallOfProcessIoCtrl){
-      this.spotsPicker.color.setChannel("hsv", "v", this.intensity_0_100);
+      this.spotsPicker.color.setChannel("hsv", "v", this.intensity_0_1*100);
       this.firstCallOfProcessIoCtrl=false;
     }
   }
@@ -53,9 +51,9 @@ export class SinglePwmCommandWidgetComponent implements OnInit, OnDestroy, After
   
 
   public onColorChange(color:iro.Color, changes) {
-    this.selectedIntensity = color.hsv.v ?? 0;
+    this.intensity_0_1 = color.hsv.v?color.hsv.v/100:0;
     let builder = new flatbuffers.Builder(1024);
-    let cmd=M.tSinglePwmCommand.createtSinglePwmCommand(builder, M.eSinglePwmCommand.CHANGE_INTENSITY, this.selectedIntensity);
+    let cmd=M.tSinglePwmCommand.createtSinglePwmCommand(builder, M.eSinglePwmCommand.CHANGE_INTENSITY, this.intensity_0_1);
     let wcmd = M.tCommand.createtCommand(builder, this._applicationId, M.uCommand.tSinglePwmCommand, cmd);
     builder.finish(wcmd);
     let arr:Uint8Array = builder.asUint8Array();
