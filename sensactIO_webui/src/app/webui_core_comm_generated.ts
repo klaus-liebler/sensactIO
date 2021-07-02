@@ -917,7 +917,7 @@ cmd():sensact.comm.eSinglePwmCommand {
  */
 intensity01():number {
   var offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
@@ -940,7 +940,7 @@ static addCmd(builder:flatbuffers.Builder, cmd:sensact.comm.eSinglePwmCommand) {
  * @param number intensity01
  */
 static addIntensity01(builder:flatbuffers.Builder, intensity01:number) {
-  builder.addFieldInt8(1, intensity01, 0);
+  builder.addFieldFloat32(1, intensity01, 0.0);
 };
 
 /**

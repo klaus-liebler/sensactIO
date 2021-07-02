@@ -144,7 +144,7 @@ ErrorCode Manager::Setup()
             apps[i] = cSinglePWM::Build(id, x);
             break;
         case uConfig_tRgbwPwmConfig:
-            apps[i] = cSinglePWM::Build(id, x);
+            apps[i] = cRgbwPWM::Build(id, x);
             break;
         default:
             continue;
@@ -152,6 +152,10 @@ ErrorCode Manager::Setup()
     }
     for (const auto &app : apps)
     {
+        if(!app){
+            ESP_LOGE(TAG, "One App hasn't been created successfully. Check log for Details ... Eternal loop...");
+            while (true);
+        }
         app->Setup(&this->ctx);
     }
     return ErrorCode::OK;

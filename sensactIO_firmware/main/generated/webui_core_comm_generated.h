@@ -977,13 +977,13 @@ struct tSinglePwmCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   sensact::comm::eSinglePwmCommand cmd() const {
     return static_cast<sensact::comm::eSinglePwmCommand>(GetField<int8_t>(VT_CMD, 0));
   }
-  uint8_t intensity_0_1() const {
-    return GetField<uint8_t>(VT_INTENSITY_0_1, 0);
+  float intensity_0_1() const {
+    return GetField<float>(VT_INTENSITY_0_1, 0.0f);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_CMD) &&
-           VerifyField<uint8_t>(verifier, VT_INTENSITY_0_1) &&
+           VerifyField<float>(verifier, VT_INTENSITY_0_1) &&
            verifier.EndTable();
   }
 };
@@ -995,8 +995,8 @@ struct tSinglePwmCommandBuilder {
   void add_cmd(sensact::comm::eSinglePwmCommand cmd) {
     fbb_.AddElement<int8_t>(tSinglePwmCommand::VT_CMD, static_cast<int8_t>(cmd), 0);
   }
-  void add_intensity_0_1(uint8_t intensity_0_1) {
-    fbb_.AddElement<uint8_t>(tSinglePwmCommand::VT_INTENSITY_0_1, intensity_0_1, 0);
+  void add_intensity_0_1(float intensity_0_1) {
+    fbb_.AddElement<float>(tSinglePwmCommand::VT_INTENSITY_0_1, intensity_0_1, 0.0f);
   }
   explicit tSinglePwmCommandBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1013,7 +1013,7 @@ struct tSinglePwmCommandBuilder {
 inline flatbuffers::Offset<tSinglePwmCommand> CreatetSinglePwmCommand(
     flatbuffers::FlatBufferBuilder &_fbb,
     sensact::comm::eSinglePwmCommand cmd = sensact::comm::eSinglePwmCommand_TOGGLE,
-    uint8_t intensity_0_1 = 0) {
+    float intensity_0_1 = 0.0f) {
   tSinglePwmCommandBuilder builder_(_fbb);
   builder_.add_intensity_0_1(intensity_0_1);
   builder_.add_cmd(cmd);

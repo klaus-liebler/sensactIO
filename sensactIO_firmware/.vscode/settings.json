@@ -1,8 +1,10 @@
 {
   "C_Cpp.intelliSenseEngine": "Tag Parser",
   "idf.flashType": "UART",
-  "idf.portWin": "COM4",
+  "idf.portWin": "COM11",
   "files.associations": {
-    "cmath": "cpp"
+    "cmath": "cpp",
+    "*.inc": "cpp",
+    "complex": "cpp"
   }
 }

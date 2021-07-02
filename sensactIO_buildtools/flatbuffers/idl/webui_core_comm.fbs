@@ -90,7 +90,7 @@ table tBlindCommand{
 
 table tSinglePwmCommand{
   cmd:eSinglePwmCommand;
-  intensity_0_1:uint8;
+  intensity_0_1:float;
 }
 
 table tRgbwPwmCommand{
