@@ -1,17 +1,20 @@
 #include <stdio.h>
 #include "sdkconfig.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/gpio.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <driver/gpio.h>
 #include <esp_system.h>
-#include "esp_spi_flash.h"
+#include <esp_spi_flash.h>
 
-#include "esp_adc_cal.h"
+#include <esp_adc_cal.h>
 #include <esp_wifi.h>
 #include <esp_event.h>
 #include <sys/param.h>
 #include <nvs_flash.h>
 #include <esp_netif.h>
+#include <esp_ota_ops.h>
+#include <esp_http_client.h>
+#include <esp_https_ota.h>
 #include "connect.h"
 #include <esp_http_server.h>
 #include "http_handlers.hh"
@@ -20,7 +23,7 @@
 
 #include "ws2812_strip.hh"
 #include "esp_log.h"
-#include "hal_sensactOutdoorV1.hh"
+#include "hal_sensactOutdoorV3.hh"
 #include "manager.hh"
 #include "i2c_io.hh"
 #include "i2c_mem.hh"
@@ -36,11 +39,11 @@ I2C_MemoryEmulation i2c_mem(I2C_NUM_0, i2c_io);
 std::vector<IOSource *> ioSources{i2c_io};
 
 //HAL *hal = new HAL_WroverKitV41();
-HAL *hal = new HAL_SensactOutdoorV1();
+HAL *hal = new HAL_SensactOutdoor();
 
 Manager *manager = new Manager{hal, ioSources};
 //RemoteControl2Manager remoteControl2Manager{manager};
-Milight2Manager milight2manager{manager};
+MilightSensactOutdoor milight2manager{manager};
 //PT2262Decoder decoder;
 //RX470C rx470c{CHANNEL_RX470C, &decoder, &remoteControl2Manager};
 Milight milight{&milight2manager};
@@ -194,6 +197,8 @@ void _lab_error_check_failed(ErrorCode rc, const char *file, int line, const cha
     } while (0)
 #endif
 
+
+
 void app_main(void)
 {
     int i = 0;
@@ -210,11 +215,11 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Init HAL");
     LAB_ERROR_CHECK(hal->Setup());
-    LAB_ERROR_CHECK(hal->HardwareTest());
+    //LAB_ERROR_CHECK(hal->HardwareTest());
     ESP_LOGI(TAG, "Init i2c_mem adapter @%d ", CONFIG_I2C_SLAVE_ADDRESS);
     ESP_ERROR_CHECK(i2c_mem.Setup(PIN_I2C_SCL, PIN_I2C_SDA, CONFIG_I2C_SLAVE_ADDRESS, false, 0));
-
-    xTaskCreate(managerTask, "managerTask", 4096 * 4, NULL, 6, NULL);
+    TaskHandle_t * const managerTaskHandle=NULL;
+    xTaskCreate(managerTask, "managerTask", 4096 * 4, NULL, 6, managerTaskHandle);
 
     static httpd_handle_t server;
     ESP_ERROR_CHECK(nvs_flash_init());
@@ -229,7 +234,8 @@ void app_main(void)
     //xTaskCreate(experimentTask, "experimentTask", 1024 * 2, NULL, 5, NULL);
     while (true)
     {
-        printf("Start was %d seconds ago. Free heap: %d\n", i, esp_get_free_heap_size());
+        uint32_t managerTaskFreeStack =  uxTaskGetStackHighWaterMark(managerTaskHandle);
+        printf("Start was %d seconds ago. Free heap: %d. Free Stack of Manager %d\n", i, esp_get_free_heap_size(), managerTaskFreeStack);
         i += 5;
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }

@@ -1,8 +1,8 @@
 #include "aBlind.hh"
 #include <esp_log.h>
 
-constexpr uint16_t WAIT_STOP2PREPARE = 100;
-constexpr uint16_t WAIT_PREPARE2GO = 900;
+constexpr uint16_t WAIT_STOP2PREPARE = 500;
+constexpr uint16_t WAIT_PREPARE2GO = 200;
 #define TAG "BLIND"
 
 

@@ -11,23 +11,23 @@ function create(b:flatbuffers.Builder):void{
 let builder = new flatbuffers.Builder(1024);
 let vect=[];
 {
-    let cfg=M.tBlindConfig.createtBlindConfig(builder, 1,2,M.eRelayInterlockMode.R1_DOWN__R2_UP, 5000, 5000);
+    let cfg=M.tBlindConfig.createtBlindConfig(builder, 1,2,M.eRelayInterlockMode.R1_DOWN__R2_UP, 120*1000, 120*1000);
     let wCfg = M.tConfigWrapper.createtConfigWrapper(builder, C.sensact.comm.uConfig.tBlindConfig, cfg);
     vect.push(wCfg);
 }
 {
-    let cfg=M.tBlindConfig.createtBlindConfig(builder, 3,4,M.eRelayInterlockMode.R1_DOWN__R2_UP, 5000, 5000);
+    let cfg=M.tBlindConfig.createtBlindConfig(builder, 3,4,M.eRelayInterlockMode.R1_DOWN__R2_UP, 120*1000, 120*1000);
     let wCfg = M.tConfigWrapper.createtConfigWrapper(builder, C.sensact.comm.uConfig.tBlindConfig, cfg);
     vect.push(wCfg);
 }
 {
-    let cfg=M.tSinglePwmConfig.createtSinglePwmConfig(builder, 12, 12, 0, 10000);
+    let cfg=M.tSinglePwmConfig.createtSinglePwmConfig(builder, 12, 12, 4, 6*60*60*1000);
     let wCfg = M.tConfigWrapper.createtConfigWrapper(builder, C.sensact.comm.uConfig.tSinglePwmConfig, cfg);
     vect.push(wCfg);
 }
 {
-    let cfg=M.tRgbwPwmConfig.createtRgbwPwmConfig(builder, 7, 8, 9, 10, 11, 0, 10000);
-    let wCfg = M.tConfigWrapper.createtConfigWrapper(builder, C.sensact.comm.uConfig.tRgbwPwmConfig, cfg);
+    let cfg=M.tOnOffConfig.createtOnOffConfig(builder, 5, 10000, M.eOnOffState.AUTO_OFF);
+    let wCfg = M.tConfigWrapper.createtConfigWrapper(builder, C.sensact.comm.uConfig.tOnOffConfig, cfg);
     vect.push(wCfg);
 }
 let cfg_vect = C.sensact.comm.tIoConfig.createConfigsVector(builder, vect);

@@ -174,7 +174,7 @@ static void start(void)
     uint8_t mac[6];
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
     char hostname[32];
-    sprintf(hostname, "labathome-%02X%02X%02X", mac[3], mac[4], mac[5]);
+    sprintf(hostname, "sensact-%02X%02X%02X", mac[3], mac[4], mac[5]);
     ESP_ERROR_CHECK(tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, hostname));
     ESP_LOGI(TAG, "Hostname set to %s", hostname);
     ESP_ERROR_CHECK(esp_wifi_connect());

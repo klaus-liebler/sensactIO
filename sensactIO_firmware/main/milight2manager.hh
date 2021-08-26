@@ -42,7 +42,7 @@ namespace command
     constexpr uint8_t SATURATION = 7;
 }
 
-class Milight2Manager : public MilightCallback
+class MilightSensactOutdoor : public MilightCallback
 {
 private:
     eSliderMode mode{eSliderMode::RGB_WWCW};
@@ -106,7 +106,7 @@ public:
             }
             else
             {
-                float x = arg * (1.0 / 100.0);
+                float x = arg * (0.95 / 100.0)+0.05;
                 ESP_LOGI(TAG, "CreatetSinglePwmCommand(builder, eSinglePwmCommand_CHANGE_INTENSITY %f)", x);
                 auto xcmd = CreatetSinglePwmCommand(builder, eSinglePwmCommand_CHANGE_INTENSITY, x);
                 cmd = CreatetCommand(builder, 3, uCommand::uCommand_tSinglePwmCommand, xcmd.Union());
@@ -141,7 +141,7 @@ public:
         auto parsed_cmd = flatbuffers::GetRoot<tCommand>(builder.GetBufferPointer());
         manager->HandleCommand(parsed_cmd);
     }
-    Milight2Manager(Manager *manager) : manager(manager) {}
+    MilightSensactOutdoor(Manager *manager) : manager(manager) {}
 
 private:
     Manager *manager;
@@ -167,9 +167,19 @@ private:
         {keycode1::K1_0, [](flatbuffers::FlatBufferBuilder *builder, eSliderMode mode)
          {
              auto xcmd = CreatetBlindCommand(*builder, eBlindCommand_DOWN_OR_STOP);
-             return CreatetCommand(*builder, 2, uCommand::uCommand_tBlindCommand, xcmd.Union());
+             return CreatetCommand(*builder, 1, uCommand::uCommand_tBlindCommand, xcmd.Union());
          }},
         {keycode1::K1_1, [](flatbuffers::FlatBufferBuilder *builder, eSliderMode mode)
+         {
+             auto xcmd = CreatetBlindCommand(*builder, eBlindCommand_UP_OR_STOP);
+             return CreatetCommand(*builder, 1, uCommand::uCommand_tBlindCommand, xcmd.Union());
+         }},
+         {keycode1::K2_0, [](flatbuffers::FlatBufferBuilder *builder, eSliderMode mode)
+         {
+             auto xcmd = CreatetBlindCommand(*builder, eBlindCommand_DOWN_OR_STOP);
+             return CreatetCommand(*builder, 2, uCommand::uCommand_tBlindCommand, xcmd.Union());
+         }},
+        {keycode1::K2_1, [](flatbuffers::FlatBufferBuilder *builder, eSliderMode mode)
          {
              auto xcmd = CreatetBlindCommand(*builder, eBlindCommand_UP_OR_STOP);
              return CreatetCommand(*builder, 2, uCommand::uCommand_tBlindCommand, xcmd.Union());
