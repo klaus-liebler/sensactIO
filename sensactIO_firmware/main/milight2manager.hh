@@ -45,7 +45,7 @@ namespace command
 class MilightSensactOutdoor : public MilightCallback
 {
 private:
-    eSliderMode mode{eSliderMode::RGB_WWCW};
+    eSliderMode mode{eSliderMode::LED_CC};
 
 public:
     void ReceivedFromMilight(uint8_t milightcmd, uint8_t arg)

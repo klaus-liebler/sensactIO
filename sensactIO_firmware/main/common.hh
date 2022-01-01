@@ -46,7 +46,7 @@ uint32_t constexpr hashStr(const char *m)
     return (*m) ? mix(*m, hashStr(m + 1)) : 0;
 }
 
-typedef uint32_t Time_t;
+typedef int64_t Time_t;
 
 constexpr uint16_t ACTIVE = UINT16_MAX;
 constexpr uint16_t INACTIVE = 0;

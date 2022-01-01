@@ -5,7 +5,7 @@
 using namespace sensact::comm;
 
 cOnOff::cOnOff(uint32_t id, uint16_t relay, eOnOffState initialState, uint32_t autoOffMsecs):
-	cApplication(id), relay(relay), autoOffMsecs(autoOffMsecs), state(initialState), lastHeartbeat(0), triggered(false){
+	cApplication(id), relay(relay), autoOffMsecs(autoOffMsecs), state(initialState), lastHeartbeat(INT64_MIN), triggered(false){
 }
 
 

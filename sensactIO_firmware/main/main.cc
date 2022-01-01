@@ -15,7 +15,7 @@
 #include <esp_ota_ops.h>
 #include <esp_http_client.h>
 #include <esp_https_ota.h>
-#include "connect.h"
+#include "network.h"
 #include <esp_http_server.h>
 #include "http_handlers.hh"
 
@@ -25,8 +25,8 @@
 #include "esp_log.h"
 #include "hal_sensactOutdoorV3.hh"
 #include "manager.hh"
-#include "i2c_io.hh"
-#include "i2c_mem.hh"
+//#include "i2c_io.hh"
+//#include "i2c_mem.hh"
 #include "rx470c.hh"
 #include "milight.hh"
 #include "spiffs.hh"
@@ -34,10 +34,10 @@
 #include "milight2manager.hh"
 
 #define TAG "main"
-I2C_IO *const i2c_io = new I2C_IO();
-I2C_MemoryEmulation i2c_mem(I2C_NUM_0, i2c_io);
-std::vector<IOSource *> ioSources{i2c_io};
-
+//I2C_IO *const i2c_io = new I2C_IO();
+//I2C_MemoryEmulation i2c_mem(I2C_NUM_0, i2c_io);
+//std::vector<IOSource *> ioSources{i2c_io};
+std::vector<IOSource *> ioSources{};
 //HAL *hal = new HAL_WroverKitV41();
 HAL *hal = new HAL_SensactOutdoor();
 
@@ -211,13 +211,13 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Init milight");
     ESP_ERROR_CHECK(milight.Init(HSPI_HOST, 2, PIN_SPI_CE, PIN_SPI_CSN, PIN_SPI_MISO, PIN_SPI_MOSI, PIN_SPI_SCLK));
+    ESP_LOGI(TAG, "Init milight FINISHED");
     ESP_ERROR_CHECK(milight.Start());
-
     ESP_LOGI(TAG, "Init HAL");
     LAB_ERROR_CHECK(hal->Setup());
     //LAB_ERROR_CHECK(hal->HardwareTest());
     ESP_LOGI(TAG, "Init i2c_mem adapter @%d ", CONFIG_I2C_SLAVE_ADDRESS);
-    ESP_ERROR_CHECK(i2c_mem.Setup(PIN_I2C_SCL, PIN_I2C_SDA, CONFIG_I2C_SLAVE_ADDRESS, false, 0));
+    //ESP_ERROR_CHECK(i2c_mem.Setup(PIN_I2C_SCL, PIN_I2C_SDA, CONFIG_I2C_SLAVE_ADDRESS, false, 0));
     TaskHandle_t * const managerTaskHandle=NULL;
     xTaskCreate(managerTask, "managerTask", 4096 * 4, NULL, 6, managerTaskHandle);
 
@@ -225,7 +225,7 @@ void app_main(void)
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    ESP_ERROR_CHECK(connect());
+    ESP_ERROR_CHECK(connectBlocking());
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
 

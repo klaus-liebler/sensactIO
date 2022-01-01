@@ -54,8 +54,8 @@ public:
 	{
 		i2c_num = I2C_NUM_0or1,
 		hal.dev = I2C_LL_GET_HW(I2C_NUM_0or1);
-		spinlock.spinlock.count = 0;
-		spinlock.spinlock.owner = SPINLOCK_FREE;
+		spinlock.count = 0;
+		spinlock.owner = SPINLOCK_FREE;
 	}
 
 	esp_err_t Get(uint8_t addr, uint8_t *value){
@@ -92,8 +92,8 @@ public:
 
 		portENTER_CRITICAL(&spinlock);
 		periph_module_enable(i2c_periph_signal[i2c_num].module);
-		i2c_hal_disable_intr_mask(&hal, I2C_INTR_MASK);
-		i2c_hal_clr_intsts_mask(&hal, I2C_INTR_MASK);
+		i2c_hal_disable_intr_mask(&hal, I2C_LL_INTR_MASK);
+		i2c_hal_clr_intsts_mask(&hal, I2C_LL_INTR_MASK);
 		i2c_hal_slave_init(&hal, i2c_num);
 		i2c_hal_set_slave_addr(&hal, slaveAddr, addr_10bit_en);
 		i2c_hal_set_rxfifo_full_thr(&hal, I2C_FIFO_FULL_THRESH_VAL_ADDR);

@@ -96,7 +96,8 @@
 			"xstddef": "cpp",
 			"xtr1common": "cpp",
 			"xutility": "cpp",
-			"*.ipp": "cpp"
+			"*.ipp": "cpp",
+			"filesystem": "cpp"
 		},
 		"idf.portWin": "COM5",
 		"idf.adapterTargetName": "esp32",

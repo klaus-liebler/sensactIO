@@ -1,5 +1,7 @@
 #include <nrf24.hh>
 #include "nrf24_registers.h"
+#include <esp_log.h>
+#define TAG "Nrf24RECV"
 
 constexpr char rf24_datarates[][8] = {"1MBPS", "2MBPS", "250KBPS"};
 constexpr char rf24_crclength[][10] = {"Disabled", "8 bits", "16 bits"};
@@ -38,11 +40,13 @@ constexpr char rf24_pa_dbm[][8] = {"PA_MIN", "PA_LOW", "PA_HIGH", "PA_MAX"};
 
 	void Nrf24Receiver::ceHi()
 	{
+		if(cePin == GPIO_NUM_NC) return;
 		gpio_set_level(cePin, 1);
 	}
 
 	void Nrf24Receiver::ceLow()
 	{
+		if(cePin == GPIO_NUM_NC) return;
 		gpio_set_level(cePin, 0);
 	}
 
@@ -51,11 +55,12 @@ constexpr char rf24_pa_dbm[][8] = {"PA_MIN", "PA_LOW", "PA_HIGH", "PA_MAX"};
 	{
 		this->cePin = ce_pin;
 		gpio_pad_select_gpio(ce_pin);
-		gpio_set_direction(ce_pin, GPIO_MODE_OUTPUT);
+		if(cePin != GPIO_NUM_NC){
+			gpio_set_direction(ce_pin, GPIO_MODE_OUTPUT);
+		}
 		ceLow();
-
 		spi_bus_config_t spi_bus_config{};
-
+		ESP_LOGI(TAG, "Set GPIO pins in config");
 		spi_bus_config.sclk_io_num = sclk_pin;
 		spi_bus_config.mosi_io_num = mosi_pin;
 		spi_bus_config.miso_io_num = miso_pin;
@@ -63,7 +68,7 @@ constexpr char rf24_pa_dbm[][8] = {"PA_MIN", "PA_LOW", "PA_HIGH", "PA_MAX"};
 		spi_bus_config.quadhd_io_num = GPIO_NUM_NC;
 
 		ESP_ERROR_CHECK(spi_bus_initialize(hostDevice, &spi_bus_config, dmaChannel));
-
+		ESP_LOGI(TAG, "Set GPIO pins in config FINISHED");
 		spi_device_interface_config_t devcfg{};
 		devcfg.clock_speed_hz = SPI_MASTER_FREQ_8M;
 		devcfg.queue_size = 1;

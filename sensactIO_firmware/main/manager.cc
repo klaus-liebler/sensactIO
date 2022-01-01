@@ -163,7 +163,7 @@ ErrorCode Manager::Setup()
 
 ErrorCode Manager::Loop()
 {
-    ctx.now = this->hal->GetMillis();
+    ctx.now = this->hal->GetMillis64();
     outputBufferChangedBits=0;
     hal->BeforeLoop();
     //Jede IOSource und ganz zum Schluss die Webui bekommen zugang zu den hier gepufferten Inputs und Outputs

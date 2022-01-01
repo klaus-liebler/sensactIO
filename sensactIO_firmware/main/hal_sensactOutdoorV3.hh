@@ -392,6 +392,7 @@ public:
             ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
             ledc_channel.hpoint = 0;
             ledc_channel.timer_sel = LEDC_TIMER_0;
+            ledc_channel.intr_type=LEDC_INTR_DISABLE;
             ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
         }
 
@@ -403,6 +404,7 @@ public:
         conf.scl_io_num = PIN_I2C_SCL;
         conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
         conf.master.clk_speed = 100000;
+        conf.clk_flags = 0;
         i2c_param_config(I2C_PORT, &conf);
         ESP_ERROR_CHECK(i2c_driver_install(I2C_PORT, conf.mode, 0, 0, 0));
         ESP_ERROR_CHECK(I2C::Init());
