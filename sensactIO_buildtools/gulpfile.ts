@@ -64,6 +64,7 @@ function createFlatbuffersTsHeader() {
         .pipe(exec.reporter(exec_reportOptions));
 }
 
+//Not necessary in recent version
 function modifyFlatbuffersTSHeader() {
     return gulp.src(GEN_FLATBUFFER_IDL + "*.ts")
         .pipe(replace('import { flatbuffers } from "./flatbuffers"', 'import { flatbuffers } from "flatbuffers"'))
@@ -77,7 +78,7 @@ function createFlatbuffersCppHeader() {
 }
 
 function copyFlatbufferTSRessourceToProject() {
-    return gulp.src(GEN_FLATBUFFER_IDL + "*.ts")
+    return gulp.src(GEN_FLATBUFFER_IDL + "**/*.ts")
 
         .pipe(gulp.dest(DEST_FLATBUFFERS_TS))
 }
@@ -87,29 +88,31 @@ function copyFlatbufferCPPRessourceToProject() {
 }
 
 function transpileFlatbuffersTSHeader() {
-    return gulp.src(GEN_FLATBUFFER_IDL + "*.ts")
+    return gulp.src(GEN_FLATBUFFER_IDL + "**/*.ts")
 
         .pipe(ts({
             noImplicitAny: true,
+            rootDir: "C:/repos/sensactIO/sensactIO_buildtools",
         }))
         .pipe(gulp.dest(GEN_FLATBUFFER_IDL));
 }
 
-function transpileFlatbufferCfgGenerators() {
+function transpileFlatbufferCfgCreators() {
     return gulp.src(SRC_GLOB_FLATBUFFERS_IOCFG_CREATORS)
         .pipe(ts({
             noImplicitAny: true,
+            rootDir: "C:/repos/sensactIO/sensactIO_buildtools",
         }))
         .pipe(gulp.dest(GEN_FLATBUFFER_CREATORS));
 }
 
-function executeFlatbufferCfgGenerators() {
+function executeFlatbufferCfgCreators() {
     return gulp.src(GEN_FLATBUFFER_CREATORS + "*.js")
         .pipe(exec((file: any) => `node ${file.path} ${GEN_FLATBUFFER_IOCFG + path.basename(file.path, ".js") + ".bin"}`, exec_options));
 }
 
 function cleanGen() {
-    return gulp.src(GEN, { read: false })
+    return gulp.src(GEN, { "read": false, "allowEmpty": true })
         .pipe(clean());
 }
 
@@ -121,10 +124,10 @@ function buildWebuiProd(cb: Function) {
     let options = {
         cwd: WEBUI_PROJECT_ROOT
     };
-    return cp.exec("ng build --prod", options, (err, stdout, stderr) => {
+    return cp.exec("ng build", options, (err, stdout, stderr) => {
         if (err) {
-            console.error(`exec error: ${err}`);
-            return;
+            console.error(`exec error: ${err.code}`);
+            console.error(`stderr: ${stderr}`);
         }
         console.log(`Number of files ${stdout}`);
         cb();
@@ -139,11 +142,11 @@ function buildAndFlash(cb: Function) {
 
 exports.build = gulp.series(
     cleanGen,
-    gulp.parallel(gulp.series(createFlatbuffersTsHeader, modifyFlatbuffersTSHeader), createFlatbuffersCppHeader),
+    gulp.parallel(gulp.series(createFlatbuffersTsHeader,/* modifyFlatbuffersTSHeader*/), createFlatbuffersCppHeader),
     gulp.parallel(copyFlatbufferTSRessourceToProject, copyFlatbufferCPPRessourceToProject),
     transpileFlatbuffersTSHeader,
-    transpileFlatbufferCfgGenerators,
-    executeFlatbufferCfgGenerators,
+    transpileFlatbufferCfgCreators,
+    executeFlatbufferCfgCreators,
     copyFlatbuffersCfgToProject,
     buildWebuiProd,
     inlineWebui,

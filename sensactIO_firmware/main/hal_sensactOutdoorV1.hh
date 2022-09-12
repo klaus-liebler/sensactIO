@@ -95,18 +95,20 @@ public:
     ErrorCode HardwareTest() override{
 
         ColorizeLed(0, CRGB::Red);
+        ColorizeLed(1, CRGB::Red);
         ESP_LOGI(TAG, "WS2812 RED");
         strip->Refresh(100);
         vTaskDelay(500/portTICK_PERIOD_MS);
         ColorizeLed(0, CRGB::Green);
+        ColorizeLed(1, CRGB::Green);
         ESP_LOGI(TAG, "WS2812 Green");
         strip->Refresh(100);
         vTaskDelay(500/portTICK_PERIOD_MS);
         ColorizeLed(0, CRGB::Blue);
+        ColorizeLed(1, CRGB::Blue);
         ESP_LOGI(TAG, "WS2812 Blue");
         strip->Refresh(100);
         vTaskDelay(500/portTICK_PERIOD_MS);
-
         ESP_LOGI(TAG, "RELAY1");
         SetU16Output(pins::sensactOutdoor::RELAY1, 1);
         vTaskDelay(500/portTICK_PERIOD_MS);
@@ -350,7 +352,7 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode Setup() override
+    ErrorCode SetupAndRun() override
     {
         //gpio_pad_select_gpio((uint8_t)PIN_MAINS);
         //gpio_set_direction(PIN_MAINS, GPIO_MODE_INPUT);

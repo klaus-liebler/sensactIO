@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Widget } from '../config-ui/config-ui.component';
-import { flatbuffers } from 'flatbuffers';
-import * as C from '../webui_core_comm_generated';
-import M = C.sensact.comm;
+import * as fb from 'flatbuffers';
+import * as CFG from '../config_generated';
 
 
 @Component({
@@ -24,11 +23,11 @@ export class SinglePwmConfigWidgetComponent implements OnInit {
     this._widgetData=w;
     w.configWrapperCreator=this;
     if(w.rawData==null)return
-    if(w.rawData.configType()!=M.uConfig.tSinglePwmConfig) return;
-    this.pwmFirst=w.rawData.config(new M.tSinglePwmConfig()).pwmFirst();
-    this.pwmLast=w.rawData.config(new M.tSinglePwmConfig()).pwmLast();
-    this.idOfStandbyController=w.rawData.config(new M.tSinglePwmConfig()).idOfStandbyController();
-    this.autoOffMsecs=w.rawData.config(new M.tSinglePwmConfig()).autoOffMsecs();  
+    if(w.rawData.configType()!=CFG.uConfig.tSinglePwmConfig) return;
+    this.pwmFirst=w.rawData.config(new CFG.tSinglePwmConfig()).pwmFirst();
+    this.pwmLast=w.rawData.config(new CFG.tSinglePwmConfig()).pwmLast();
+    this.idOfStandbyController=w.rawData.config(new CFG.tSinglePwmConfig()).idOfStandbyController();
+    this.autoOffMsecs=w.rawData.config(new CFG.tSinglePwmConfig()).autoOffMsecs();  
   }
 
   @Output() deleteItemEvent = new EventEmitter<number>();
@@ -39,9 +38,9 @@ export class SinglePwmConfigWidgetComponent implements OnInit {
   onBtnUpClicked=()=>this.moveItemUpEvent.emit(this._widgetData.index);
   onBtnDownClicked=()=>this.moveItemDownEvent.emit(this._widgetData.index);
 
-  BuildAndReturnConfigWrapper(builder: flatbuffers.Builder):flatbuffers.Offset {
-    let cfg2=M.tSinglePwmConfig.createtSinglePwmConfig(builder, this.pwmFirst, this.pwmLast, this.idOfStandbyController, this.autoOffMsecs);
-    return M.tConfigWrapper.createtConfigWrapper(builder, C.sensact.comm.uConfig.tSinglePwmConfig, cfg2);
+  BuildAndReturnConfigWrapper(builder: fb.Builder):fb.Offset {
+    let cfg2=CFG.tSinglePwmConfig.createtSinglePwmConfig(builder, this.pwmFirst, this.pwmLast, this.idOfStandbyController, this.autoOffMsecs);
+    return CFG.tConfigWrapper.createtConfigWrapper(builder, CFG.uConfig.tSinglePwmConfig, cfg2);
   }
   constructor() { }
 

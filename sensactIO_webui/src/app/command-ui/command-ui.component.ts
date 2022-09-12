@@ -1,12 +1,13 @@
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { CommunicationService } from '../communication.service';
-import * as C from '../webui_core_comm_generated';
-import M = C.sensact.comm;
+import * as fb from 'flatbuffers';
+import * as C from '../command_generated';
+import * as S from '../state_generated';
 
 interface Widget{
   applicationId:number;
-  type:M.uState;
+  type:S.uState;
 }
 
 @Component({
@@ -15,10 +16,10 @@ interface Widget{
   styleUrls: ['./command-ui.component.scss']
 })
 export class CommandUiComponent implements OnInit, OnDestroy {
-  public uState=M.uState;
+  public uState=S.uState;
   private info:Subscription|null;
   public widgets:Array<Widget>=new Array<Widget>();
-  public state:M.tState;
+  public state:S.tState;
   
   constructor(private ngZone: NgZone, public ioState:CommunicationService) { }
   ngOnDestroy(): void {

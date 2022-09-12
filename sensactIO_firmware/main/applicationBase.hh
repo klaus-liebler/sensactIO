@@ -1,6 +1,7 @@
 #pragma once
 #include <inttypes.h>
-#include "common.hh"
+
+#include "common_in_project.hh"
 using namespace sensact::comm;
 
 class cApplication{

@@ -1,19 +1,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommunicationService } from '../communication.service';
-import { flatbuffers } from 'flatbuffers';
-import * as C from '../webui_core_comm_generated';
-import M = C.sensact.comm;
+import * as fb from 'flatbuffers';
+import * as C from '../command_generated';
+import * as S from '../state_generated';
+import * as CFG from '../config_generated';
 
 export interface ConfigWrapperCreator {
-  BuildAndReturnConfigWrapper(builder: flatbuffers.Builder): flatbuffers.Offset;
+  BuildAndReturnConfigWrapper(builder: fb.Builder): fb.Offset;
 }
 
 export class Widget {
   constructor(
-    public type: M.uConfig,
+    public type: CFG.uConfig,
     public index: number,
     public isLast: boolean,
-    public rawData: M.tConfigWrapper = null,
+    public rawData: CFG.tConfigWrapper = null,
     public configWrapperCreator: ConfigWrapperCreator = null,
   ) { }
 }
@@ -24,13 +25,13 @@ export class Widget {
   styleUrls: ['./config-ui.component.scss']
 })
 export class ConfigUiComponent implements OnInit {
-  uConfig = M.uConfig;
+  uConfig = CFG.uConfig;
   widgets = new Array<Widget>();
 
-  public currentlySelectedWidgetType = M.uConfig.NONE;
+  public currentlySelectedWidgetType = CFG.uConfig.NONE;
 
   public onBtnAddClicked() {
-    if (this.currentlySelectedWidgetType == M.uConfig.NONE) return;
+    if (this.currentlySelectedWidgetType == CFG.uConfig.NONE) return;
     let l = this.widgets.length;
     if (l > 0) {
       this.widgets[l - 1].isLast = false;
@@ -40,13 +41,13 @@ export class ConfigUiComponent implements OnInit {
   }
 
   public onBtnSaveClicked() {
-    let builder = new flatbuffers.Builder(1024);
-    let cfgs:flatbuffers.Offset[]=[];
+    let builder = new fb.Builder(1024);
+    let cfgs:fb.Offset[]=[];
     for(let w of this.widgets){
       cfgs.push(w.configWrapperCreator.BuildAndReturnConfigWrapper(builder));
     }
-    let cfg_vect = M.tIoConfig.createConfigsVector(builder, cfgs);
-    let cfg= M.tIoConfig.createtIoConfig(builder, 0, cfg_vect);
+    let cfg_vect = CFG.tIoConfig.createConfigsVector(builder, cfgs);
+    let cfg= CFG.tIoConfig.createtIoConfig(builder, 0, cfg_vect);
     builder.finish(cfg);
     let arr= builder.asUint8Array();
     this.comm.putIoConfig(arr).subscribe();

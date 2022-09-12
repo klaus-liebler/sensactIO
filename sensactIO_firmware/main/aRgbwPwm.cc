@@ -174,5 +174,5 @@ cRgbwPWM *cRgbwPWM::Build(uint32_t const id, const tConfigWrapper* cfg){
 		return nullptr;
 	}
 	auto x = cfg->config_as_tRgbwPwmConfig();
-	return new cRgbwPWM(id, x->pwmR(), x->pwmG(), x->pwmB(), x->pwmCW(), x->pwmWW(), x->autoOffMsecs(), x->idOfStandbyController());
+	return new cRgbwPWM(id, x->pwm_r(), x->pwm_g(), x->pwm_b(), x->pwm_cw(), x->pwm_ww(), x->auto_off_msecs(), x->id_of_standby_controller());
 }

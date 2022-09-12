@@ -1,3 +1,5 @@
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include "esp_log.h"
 #include "common.hh"
 #include <vector>
@@ -6,7 +8,7 @@
 #include "aSinglePwm.hh"
 #include "aRgbwPwm.hh"
 #include "aOnOff.hh"
-#include "paths_and_files.hh"
+#include "common_projectconfig.hh"
 #include "cJSON.h"
 #include <vector>
 
@@ -24,6 +26,21 @@ Manager::Manager(HAL *hal, std::vector<IOSource *> ioSources) : hal(hal), ioSour
     this->outputBufferChangedBits=0;
     this->handleCommandSemaphore = xSemaphoreCreateMutex();
     assert(this->handleCommandSemaphore!=NULL);
+}
+
+void Manager::Task(void *pvParameters)
+{
+    Manager* myself = static_cast<Manager*>(pvParameters);
+    //Setup'ed is already: HAL and i2c_mem
+    ESP_LOGI(TAG, "managerTask started");
+    TickType_t xLastWakeTime{0};
+    const TickType_t xTimeIncrement = pdMS_TO_TICKS(100);
+    xLastWakeTime = xTaskGetTickCount();
+    while (true)
+    {
+        vTaskDelayUntil(&xLastWakeTime, xTimeIncrement);
+        myself->Loop();
+    }
 }
 
 
@@ -51,7 +68,7 @@ ErrorCode Manager::GetBoolInputs(uint32_t *value)
 
 ErrorCode Manager::HandleCommand(const sensact::comm::tCommand *cmd)
 {
-    uint32_t appId = cmd->applicationId();
+    uint32_t appId = cmd->application_id();
     if (appId == 0) return ErrorCode::OK;
    
     uint16_t appIdx = appId - 1;
@@ -96,7 +113,7 @@ ErrorCode Manager::FillBuilderWithStateForWebUI(flatbuffers::FlatBufferBuilder *
 }
 
 //Read configuration file
-ErrorCode Manager::Setup()
+ErrorCode Manager::SetupAndRun()
 {
     ctx.now = this->hal->GetMillis();
     FILE *fd = NULL;
@@ -158,6 +175,8 @@ ErrorCode Manager::Setup()
         }
         app->Setup(&this->ctx);
     }
+    TaskHandle_t * const managerTaskHandle=NULL;
+    xTaskCreate(Manager::Task, "managerTask", 4096 * 4, this, 6, managerTaskHandle);
     return ErrorCode::OK;
 }
 
@@ -201,16 +220,14 @@ ErrorCode Manager::Loop()
 
 ErrorCode Manager::PostCommand(const tCommand *cmd)
 {
-    if (cmd->applicationId() == 0)
+    if (cmd->application_id() == 0)
     {
         return ErrorCode::OK;
     }
-    cApplication *app = this->apps.at(cmd->applicationId() - 1);
+    cApplication *app = this->apps.at(cmd->application_id() - 1);
     if (!app)
     {
         return ErrorCode::NONE_AVAILABLE;
     }
     return app->ProcessCommand(cmd);
 }
-
-#undef TAG

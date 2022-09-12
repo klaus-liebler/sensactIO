@@ -1,9 +1,8 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { flatbuffers } from 'flatbuffers'; // located in node_modules
 import { CommunicationService } from '../communication.service';
-import * as C from '../webui_core_comm_generated';
-
-import M=C.sensact.comm;
+import * as fb from 'flatbuffers';
+import * as C from '../command_generated';
+import * as S from '../state_generated';
 
 @Component({
   selector: 'app-on-off-command-widget',
@@ -28,7 +27,7 @@ export class OnOffCommandWidgetComponent implements OnInit, AfterViewInit {
   @ViewChild('butOff')
   public butOff: ElementRef;
 
-  private onOffstate: M.eOnOffState = M.eOnOffState.AUTO_OFF;
+  private onOffstate: S.eOnOffState = S.eOnOffState.AUTO_OFF;
 
   constructor(private comm:CommunicationService) { }
   ngAfterViewInit(): void {
@@ -36,46 +35,46 @@ export class OnOffCommandWidgetComponent implements OnInit, AfterViewInit {
   }
 
   @Input() public applicationId:number;
-  @Input() set state(r:M.tState){
+  @Input() set state(r:S.tState){
     let i=this.applicationId-1;
-    if (r.states(i)?.stateType() != M.uState.tOnOffState) {
+    if (r.states(i)?.stateType() != S.uState.tOnOffState) {
       return;
     }
-    let onOffstate = r.states(i)!.state(new M.tOnOffState())!.state()
+    let onOffstate = r.states(i)!.state(new S.tOnOffState())!.state()
     if(this.selector && onOffstate!=this.onOffstate ){
       this.updateUI(onOffstate);
     }
   }
 
-  private onCommand(c:M.eOnOffCommand){
-    let builder = new flatbuffers.Builder(1024);
-    let cmd=M.tOnOffCommand.createtOnOffCommand(builder, c, 0);
-    let wcmd = M.tCommand.createtCommand(builder, this.applicationId, M.uCommand.tOnOffCommand, cmd);
+  private onCommand(c:C.eOnOffCommand){
+    let builder = new fb.Builder(1024);
+    let cmd=C.tOnOffCommand.createtOnOffCommand(builder, c, 0);
+    let wcmd = C.tCommand.createtCommand(builder, this.applicationId, C.uCommand.tOnOffCommand, cmd);
     builder.finish(wcmd);
     let arr:Uint8Array = builder.asUint8Array();
-    this.comm.putCommand(arr).subscribe((state:M.tState)=>{this.state=state});
+    this.comm.putCommand(arr).subscribe((state:S.tState)=>{this.state=state});
   }
 
   onBtnOnClicked(){
     console.log(`Send ON with applicationId ${this.applicationId}`);
-    this.onCommand(M.eOnOffCommand.ON);
+    this.onCommand(C.eOnOffCommand.ON);
   }
 
   onBtnAutoClicked(){
     console.log(`Send AUTO with applicationId ${this.applicationId}`);
-    this.onCommand(M.eOnOffCommand.AUTO);
+    this.onCommand(C.eOnOffCommand.AUTO);
     
   }
 
   onBtnOffClicked(){
     console.log(`Send OFF with applicationId ${this.applicationId}`);
-    this.onCommand(M.eOnOffCommand.OFF);
+    this.onCommand(C.eOnOffCommand.OFF);
   }
 
-  private updateUI(newState: C.sensact.comm.eOnOffState) {
+  private updateUI(newState: S.eOnOffState) {
     this.onOffstate = newState;
     switch (this.onOffstate) {
-      case M.eOnOffState.AUTO_OFF:
+      case S.eOnOffState.AUTO_OFF:
         this.selectorLeft = this.butOn.nativeElement.clientWidth;
         this.selectorWidth = this.butAuto.nativeElement.clientWidth;
         this.selectorText = "AUTO";
@@ -83,7 +82,7 @@ export class OnOffCommandWidgetComponent implements OnInit, AfterViewInit {
         this.selectorForegroundColor = "white";
         this.selectorVisibility = "visible";
         break;
-      case M.eOnOffState.AUTO_ON:
+      case S.eOnOffState.AUTO_ON:
         this.selectorLeft = this.butOn.nativeElement.clientWidth;
         this.selectorWidth = this.butAuto.nativeElement.clientWidth;
         this.selectorText = "AUTO";
@@ -91,7 +90,7 @@ export class OnOffCommandWidgetComponent implements OnInit, AfterViewInit {
         this.selectorForegroundColor = "white";
         this.selectorVisibility = "visible";
         break;
-      case M.eOnOffState.MANUAL_ON:
+      case S.eOnOffState.MANUAL_ON:
         this.selectorLeft = 0;
         this.selectorWidth = this.butOn.nativeElement.clientWidth;
         this.selectorText = "ON";
@@ -99,7 +98,7 @@ export class OnOffCommandWidgetComponent implements OnInit, AfterViewInit {
         this.selectorForegroundColor = "black";
         this.selectorVisibility = "visible";
         break;
-      case M.eOnOffState.MANUAL_OFF:
+      case S.eOnOffState.MANUAL_OFF:
         this.selectorLeft = this.butOn.nativeElement.clientWidth + this.butAuto.nativeElement.clientWidth + 1;
         this.selectorWidth = this.butOff.nativeElement.clientWidth;
         this.selectorText = "OFF";

@@ -125,5 +125,8 @@
       }
     }
   },
-  "defaultProject": "sensactIO_webui"
+  "defaultProject": "sensactIO_webui",
+  "cli": {
+    "analytics": false
+  }
 }

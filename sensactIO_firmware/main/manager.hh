@@ -19,12 +19,13 @@ private:
     std::vector<IOMode> configurationBuffer;
     bool reconfigurationRequestOccured{false};
     SemaphoreHandle_t handleCommandSemaphore = NULL;
+    ErrorCode Loop();
+    static void Task(void *pvParameters);
 public:
     Manager(HAL *hal, std::vector<IOSource *> ioSources);
     ErrorCode HandleCommand(const sensact::comm::tCommand *cmd);
     ErrorCode FillBuilderWithStateForWebUI(flatbuffers::FlatBufferBuilder *builder);
-    ErrorCode Setup();
-    ErrorCode Loop();
+    ErrorCode SetupAndRun();
     ErrorCode PostCommand(const tCommand* cmd) override;
     ErrorCode ConfigureIO(uint16_t index, IOMode mode) override;
     ErrorCode SetU16Output(uint16_t index, uint16_t state) override;

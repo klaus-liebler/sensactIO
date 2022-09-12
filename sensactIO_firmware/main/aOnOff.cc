@@ -80,5 +80,5 @@ cOnOff* cOnOff::Build(uint32_t const id, const tConfigWrapper* cfg){
 	}
 	ESP_LOGI(TAG, "Build uConfig_tOnOffConfig for id %d", id);
 	auto x = cfg->config_as_tOnOffConfig();
-	return new cOnOff(id, x->relay(), x->initialState(), x->autoOffMsecs());
+	return new cOnOff(id, x->relay(), x->initial_state(), x->auto_off_msecs());
 }

@@ -104,5 +104,5 @@ cSinglePWM *cSinglePWM::Build(uint32_t const id, const tConfigWrapper* cfg){
 		return nullptr;
 	}
 	auto x = cfg->config_as_tSinglePwmConfig();
-	return new cSinglePWM(id, x->pwmFirst(), x->pwmLast(), x->autoOffMsecs(), x->idOfStandbyController());
+	return new cSinglePWM(id, x->pwm_first(), x->pwm_last(), x->auto_off_msecs(), x->id_of_standby_controller());
 }
