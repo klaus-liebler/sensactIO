@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <time.h>
+#include <sys/time.h>
 #include "sdkconfig.h"
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -15,6 +17,7 @@
 #include <esp_ota_ops.h>
 #include <esp_http_client.h>
 #include <esp_https_ota.h>
+#include <esp_sntp.h>
 #include <wifimanager.hh>
 #include <otamanager.hh>
 #include <esp_http_server.h>
@@ -29,7 +32,7 @@
 #include "manager.hh"
 //#include "i2c_io.hh"
 //#include "i2c_mem.hh"
-#include "rx470c.hh"
+//#include "rx470c.hh"
 #include "milight.hh"
 #include "spiffs.hh"
 #include <map>
@@ -41,7 +44,8 @@
 //std::vector<IOSource *> ioSources{i2c_io};
 std::vector<IOSource *> ioSources{};
 //HAL *hal = new HAL_WroverKitV41();
-HAL *hal = new HAL_SensactOutdoor();
+otamanager::M myotamanager;
+HAL *hal = new HAL_SensactOutdoor(&myotamanager);
 
 Manager *manager = new Manager{hal, ioSources};
 MilightSensactOutdoor milight2manager{manager};
@@ -71,21 +75,13 @@ static httpd_handle_t SetupAndRunWebserver(void)
     return server;
 }
 
+
+
 extern "C" void app_main(void)
 {
     esp_log_level_set(TAG, ESP_LOG_INFO);
     esp_log_level_set("wifi", ESP_LOG_WARN);
     ESP_ERROR_CHECK(SpiffsManager::Init());
-
-    ESP_LOGI(TAG, "Init milight");
-    ESP_ERROR_CHECK(milight.Init(HSPI_HOST, 1, PIN_SPI_CE, PIN_SPI_CSN, PIN_SPI_MISO, PIN_SPI_MOSI, PIN_SPI_SCLK));
-    ESP_LOGI(TAG, "Init milight FINISHED");
-    ESP_ERROR_CHECK(milight.Start());
-    ESP_LOGI(TAG, "Init HAL");
-    ERRORCODE_CHECK(hal->SetupAndRun());
-    ERRORCODE_CHECK(hal->HardwareTest());
-    //ESP_LOGI(TAG, "Init i2c_mem adapter @%d ", CONFIG_I2C_SLAVE_ADDRESS);
-    //ESP_ERROR_CHECK(i2c_mem.Setup(PIN_I2C_SCL, PIN_I2C_SDA, CONFIG_I2C_SLAVE_ADDRESS, false, 0));
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
@@ -94,8 +90,19 @@ extern "C" void app_main(void)
     }
     ESP_ERROR_CHECK(err);
     ESP_ERROR_CHECK(WIFIMGR::InitAndRun(false, http_scatchpad, sizeof(http_scatchpad)));
-    otamanager::M otamanager;
-    //otamanager.InitAndRun(CONFIG_OTA_URL);
+   
+
+    ESP_LOGI(TAG, "Init milight");
+    ESP_ERROR_CHECK(milight.Init(HSPI_HOST, 1, PIN_SPI_CE, PIN_SPI_CSN, PIN_SPI_MISO, PIN_SPI_MOSI, PIN_SPI_SCLK));
+    ESP_LOGI(TAG, "Init milight FINISHED");
+    ESP_ERROR_CHECK(milight.Start());
+    ESP_LOGI(TAG, "Init HAL");
+    ERRORCODE_CHECK(hal->SetupAndRun());
+    //ERRORCODE_CHECK(hal->HardwareTest());
+    //ESP_LOGI(TAG, "Init i2c_mem adapter @%d ", CONFIG_I2C_SLAVE_ADDRESS);
+    //ESP_ERROR_CHECK(i2c_mem.Setup(PIN_I2C_SCL, PIN_I2C_SDA, CONFIG_I2C_SLAVE_ADDRESS, false, 0));
+    
+    myotamanager.InitAndRun("https://netcase.hs-osnabrueck.de/index.php/s/urMhdevIJdWcgKf/download");
 
     httpd_handle_t httpd_handle = SetupAndRunWebserver();
     ESP_ERROR_CHECK(RegisterHandler(httpd_handle, "/iostate", HTTP_PUT, handle_put_iostate, manager));
@@ -110,7 +117,7 @@ extern "C" void app_main(void)
 
     while (true)
     {
-        ESP_LOGI(TAG, "Free heap: %d",  esp_get_free_heap_size());
+        hal->OutputOneLineStatus();
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }

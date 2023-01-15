@@ -120,6 +120,7 @@ public:
     virtual ErrorCode AfterLoop() = 0;
     virtual ErrorCode BeforeLoop() = 0;
     virtual ErrorCode HardwareTest()=0;
+    virtual void OutputOneLineStatus()=0;
 };
 
 class PostOffice
