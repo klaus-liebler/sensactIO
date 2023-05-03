@@ -2,12 +2,20 @@ import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { CommunicationService } from '../communication.service';
 import * as fb from 'flatbuffers';
-import * as C from '../command_generated';
-import * as S from '../state_generated';
+import {tBlindCommand}  from '../sensact/comm/t-blind-command';
+import {tBlindState}  from '../sensact/comm/t-blind-state';
+import {tBlindConfig}  from '../sensact/comm/t-blind-config';
+import { tConfigWrapper } from '../sensact/comm/t-config-wrapper';
+import {tCommand}  from '../sensact/comm/t-command';
+import {uCommand}  from '../sensact/comm/u-command';
+import {tState}  from '../sensact/comm/t-state';
+import {uState}  from '../sensact/comm/u-state';
+import * as E from '../sensact/comm';
+import {uConfig}  from  '../sensact/comm/u-config';
 
 interface Widget{
   applicationId:number;
-  type:S.uState;
+  type:uState;
 }
 
 @Component({
@@ -16,10 +24,10 @@ interface Widget{
   styleUrls: ['./command-ui.component.scss']
 })
 export class CommandUiComponent implements OnInit, OnDestroy {
-  public uState=S.uState;
+  public uState=uState;
   private info:Subscription|null;
   public widgets:Array<Widget>=new Array<Widget>();
-  public state:S.tState;
+  public state:tState;
   
   constructor(private ngZone: NgZone, public ioState:CommunicationService) { }
   ngOnDestroy(): void {

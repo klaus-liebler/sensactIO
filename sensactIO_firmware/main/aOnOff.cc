@@ -5,12 +5,13 @@
 using namespace sensact::comm;
 
 cOnOff::cOnOff(uint32_t id, uint16_t relay, eOnOffState initialState, uint32_t autoOffMsecs):
-	cApplication(id), relay(relay), autoOffMsecs(autoOffMsecs), state(initialState), lastHeartbeat(INT64_MIN), triggered(false){
+	cApplication(id), relay(relay), autoOffMsecs(autoOffMsecs), state(initialState), lastHeartbeat(-1000000), triggered(false){
 }
 
 
 ErrorCode cOnOff::Setup(SensactContext *ctx)
 {
+	//lastHeartbeat=-((int)autoOffMsecs)-10000;
 	return ctx->io->SetU16Output(this->relay, INACTIVE);
 }
 
@@ -33,6 +34,7 @@ ErrorCode cOnOff::Loop(SensactContext *ctx)
 		ctx->io->SetU16Output(relay, INACTIVE);
 		this->state=eOnOffState_AUTO_OFF;
 	}else if(ctx->now-lastHeartbeat <= autoOffMsecs && this->state==eOnOffState_AUTO_OFF){
+		ESP_LOGI(TAG, "ctx->now=%lld lastHeartbeat=%lld autoOffMsecs=%lu this->state==eOnOffState_AUTO_OFF --> eOnOffState_AUTO_ON", ctx->now, lastHeartbeat, autoOffMsecs);
 		ctx->io->SetU16Output(relay, ACTIVE);
 		this->state=eOnOffState_AUTO_ON;
 	}
@@ -78,7 +80,7 @@ cOnOff* cOnOff::Build(uint32_t const id, const tConfigWrapper* cfg){
 	if(cfg->config_type() !=uConfig::uConfig_tOnOffConfig){
 		return nullptr;
 	}
-	ESP_LOGI(TAG, "Build uConfig_tOnOffConfig for id %d", id);
 	auto x = cfg->config_as_tOnOffConfig();
+	ESP_LOGI(TAG, "Build uConfig_tOnOffConfig for id %lu, relay=%d, initial_state=%d, autoOffMsecs=%lu", id, x->relay(), x->initial_state(), x->auto_off_msecs());
 	return new cOnOff(id, x->relay(), x->initial_state(), x->auto_off_msecs());
 }

@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { uState, unionTouState, unionListTouState } from '../../sensact/comm/u-state';
+import { uState, unionTouState, unionListTouState } from '../../sensact/comm/u-state.js';
 
 
 export class tStateWrapper {

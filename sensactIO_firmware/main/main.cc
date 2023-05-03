@@ -6,9 +6,8 @@
 #include <freertos/task.h>
 #include <driver/gpio.h>
 #include <esp_system.h>
-#include <esp_spi_flash.h>
+#include <spi_flash_mmap.h>
 
-#include <esp_adc_cal.h>
 #include <esp_wifi.h>
 #include <esp_event.h>
 #include <sys/param.h>
@@ -19,7 +18,6 @@
 #include <esp_https_ota.h>
 #include <esp_sntp.h>
 #include <wifimanager.hh>
-#include <otamanager.hh>
 #include <esp_http_server.h>
 #include "http_handlers.hh"
 #include <httpd_helper.hh>
@@ -42,10 +40,11 @@
 //I2C_IO *const i2c_io = new I2C_IO();
 //I2C_MemoryEmulation i2c_mem(I2C_NUM_0, i2c_io);
 //std::vector<IOSource *> ioSources{i2c_io};
-std::vector<IOSource *> ioSources{};
 //HAL *hal = new HAL_WroverKitV41();
-otamanager::M myotamanager;
-HAL *hal = new HAL_SensactOutdoor(&myotamanager);
+//otamanager::M myotamanager;
+
+std::vector<IOSource *> ioSources{};
+HAL *hal = new HAL_SensactOutdoor();
 
 Manager *manager = new Manager{hal, ioSources};
 MilightSensactOutdoor milight2manager{manager};
@@ -70,7 +69,6 @@ static httpd_handle_t SetupAndRunWebserver(void)
    
     const char *hostnameptr;
     ESP_ERROR_CHECK(esp_netif_get_hostname(WIFIMGR::wifi_netif_ap, &hostnameptr));
-    tcpip_adapter_get_hostname(TCPIP_ADAPTER_IF_STA, &hostnameptr);
     ESP_LOGI(TAG, "Webserver successfully started for website http://%s:%d", hostnameptr, config.server_port);
     return server;
 }
@@ -89,7 +87,7 @@ extern "C" void app_main(void)
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
-    ESP_ERROR_CHECK(WIFIMGR::InitAndRun(false, http_scatchpad, sizeof(http_scatchpad)));
+    ESP_ERROR_CHECK(WIFIMGR::InitAndRun(false, http_scatchpad, sizeof(http_scatchpad), WIFIMGR::NETWORK_MODE::WIFI_ONLY, GPIO_NUM_NC, GPIO_NUM_NC, GPIO_NUM_NC));
    
 
     ESP_LOGI(TAG, "Init milight");
@@ -102,7 +100,7 @@ extern "C" void app_main(void)
     //ESP_LOGI(TAG, "Init i2c_mem adapter @%d ", CONFIG_I2C_SLAVE_ADDRESS);
     //ESP_ERROR_CHECK(i2c_mem.Setup(PIN_I2C_SCL, PIN_I2C_SDA, CONFIG_I2C_SLAVE_ADDRESS, false, 0));
     
-    myotamanager.InitAndRun("https://netcase.hs-osnabrueck.de/index.php/s/urMhdevIJdWcgKf/download");
+    //myotamanager.InitAndRun("https://netcase.hs-osnabrueck.de/index.php/s/urMhdevIJdWcgKf/download");
 
     httpd_handle_t httpd_handle = SetupAndRunWebserver();
     ESP_ERROR_CHECK(RegisterHandler(httpd_handle, "/iostate", HTTP_PUT, handle_put_iostate, manager));

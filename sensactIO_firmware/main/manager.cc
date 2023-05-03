@@ -73,7 +73,7 @@ ErrorCode Manager::HandleCommand(const sensact::comm::tCommand *cmd)
    
     uint16_t appIdx = appId - 1;
     if(appIdx>=apps.size()) {
-        ESP_LOGE(TAG, "HandleCommand INVALID_APPLICATION_ID %d", appId);
+        ESP_LOGE(TAG, "HandleCommand INVALID_APPLICATION_ID %lu", appId);
         return ErrorCode::INVALID_APPLICATION_ID;
     }
     //ESP_LOGI(TAG, "HandleCommand for applicationId %d", appId);
@@ -81,16 +81,16 @@ ErrorCode Manager::HandleCommand(const sensact::comm::tCommand *cmd)
     cApplication *app = apps.at(appIdx);
     if (!app)
     {
-        ESP_LOGE(TAG, "HandleCommand APPLICATION is NULL %d", appId);
+        ESP_LOGE(TAG, "HandleCommand APPLICATION is NULL %lu", appId);
         return ErrorCode::INVALID_APPLICATION_ID;
     }
-    ESP_LOGI(TAG, "HandleCommand for ApplicationId %d", appId);
+    ESP_LOGI(TAG, "HandleCommand for ApplicationId %lu", appId);
     if( xSemaphoreTake( this->handleCommandSemaphore, ( TickType_t ) 10 ) == pdTRUE )
     {
         ErrorCode err = app->ProcessCommand(cmd);
         xSemaphoreGive( this->handleCommandSemaphore);
         if(err!=ErrorCode::OK){
-            ESP_LOGW(TAG, "HandleCommand for ApplicationId %d returned error %d", appId, (int)err);
+            ESP_LOGW(TAG, "HandleCommand for ApplicationId %lu returned error %i", appId, (int)err);
         }
         return err;
     }
@@ -121,7 +121,7 @@ ErrorCode Manager::SetupAndRun()
     ESP_LOGI(TAG, "Trying to open %s", Paths::DEFAULTCFG_PATH);
     if (stat(Paths::DEFAULTCFG_PATH, &file_stat) == -1)
     {
-        ESP_LOGI(TAG, "Default PLC file %s does not exist. Exiting..", Paths::DEFAULTCFG_PATH);
+        ESP_LOGI(TAG, "Default CFG file %s does not exist. Exiting..", Paths::DEFAULTCFG_PATH);
         return ErrorCode::NO_CONFIGURATION_FOUND;
     }
     fd = fopen(Paths::DEFAULTCFG_PATH, "r");
@@ -142,7 +142,7 @@ ErrorCode Manager::SetupAndRun()
     auto cfg_vect = cfg->configs();
     auto cfg_vect_size = cfg_vect->size();
     auto timestamp = cfg->timestamp();
-    ESP_LOGI(TAG, "Found %d app configurations and timestamp %d", cfg_vect_size, timestamp);
+    ESP_LOGI(TAG, "Found %lu app configurations and timestamp %lu", cfg_vect_size, timestamp);
 
     this->apps.resize(cfg_vect_size);
     for (int i = 0; i < cfg_vect_size; i++)

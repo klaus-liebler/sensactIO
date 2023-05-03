@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { uCommand, unionTouCommand, unionListTouCommand } from '../../sensact/comm/u-command';
+import { uCommand, unionTouCommand, unionListTouCommand } from '../../sensact/comm/u-command.js';
 
 
 export class tCommand {

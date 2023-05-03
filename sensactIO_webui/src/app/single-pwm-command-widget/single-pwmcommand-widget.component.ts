@@ -4,8 +4,17 @@ import { IroColorPicker } from '@jaames/iro/dist/ColorPicker';
 import { CommunicationService } from '../communication.service';
 
 import * as fb from 'flatbuffers';
-import * as S from '../state_generated';
-import * as C from '../command_generated';
+import { tSinglePwmCommand } from '../sensact/comm/t-single-pwm-command';
+import { tSinglePwmConfig } from '../sensact/comm/t-single-pwm-config';
+import { tSinglePwmState } from '../sensact/comm/t-single-pwm-state';
+import { tConfigWrapper } from '../sensact/comm/t-config-wrapper';
+import {tCommand}  from '../sensact/comm/t-command';
+import {uCommand}  from '../sensact/comm/u-command';
+import {tState}  from '../sensact/comm/t-state';
+import {uState}  from '../sensact/comm/u-state';
+import * as E from '../sensact/comm';
+import {uConfig}  from  '../sensact/comm/u-config';
+
 
 @Component({
   selector: 'app-single-pwmcommand-widget',
@@ -28,13 +37,13 @@ export class SinglePwmCommandWidgetComponent implements OnInit, OnDestroy, After
     this._applicationId=value;
   }
 
-  @Input() set state(r:S.tState){
+  @Input() set state(r:tState){
     let i=this._applicationId-1;
-    if (r.states(i)?.stateType() != S.uState.tSinglePwmState) {
+    if (r.states(i)?.stateType() != uState.tSinglePwmState) {
       return;
     }
-    this.on = r.states(i)!.state(new S.tSinglePwmState())!.on();
-    this.intensity_0_1 = r.states(i)!.state(new S.tSinglePwmState())!.intensity01();
+    this.on = r.states(i)!.state(new tSinglePwmState())!.on();
+    this.intensity_0_1 = r.states(i)!.state(new tSinglePwmState())!.intensity01();
     //this.butSpotsOnOff.style.backgroundColor=on?"green":"grey";
     console.log(JSON.stringify({on:this.on, intensity_0_100:this.intensity_0_1, firstCallOfProcessIoCtrl:this.firstCallOfProcessIoCtrl}));
     if(this.spotsPicker && this.firstCallOfProcessIoCtrl){
@@ -54,21 +63,21 @@ export class SinglePwmCommandWidgetComponent implements OnInit, OnDestroy, After
   public onColorChange(color:iro.Color, changes) {
     this.intensity_0_1 = color.hsv.v?color.hsv.v/100:0;
     let builder = new fb.Builder(1024);
-    let cmd=C.tSinglePwmCommand.createtSinglePwmCommand(builder, C.eSinglePwmCommand.CHANGE_INTENSITY, this.intensity_0_1);
-    let wcmd = C.tCommand.createtCommand(builder, this._applicationId, C.uCommand.tSinglePwmCommand, cmd);
+    let cmd=tSinglePwmCommand.createtSinglePwmCommand(builder, E.eSinglePwmCommand.CHANGE_INTENSITY, this.intensity_0_1);
+    let wcmd = tCommand.createtCommand(builder, this._applicationId, uCommand.tSinglePwmCommand, cmd);
     builder.finish(wcmd);
     let arr:Uint8Array = builder.asUint8Array();
-    this.comm.putCommand(arr).subscribe((state:S.tState)=>{this.state=state});
+    this.comm.putCommand(arr).subscribe((state:tState)=>{this.state=state});
   }
 
   public onToggle(){
     console.log(`Send TOGGLE with applicationId ${this._applicationId}`);
     let builder = new fb.Builder(1024);
-    let cmd=C.tSinglePwmCommand.createtSinglePwmCommand(builder, C.eSinglePwmCommand.TOGGLE, this.spotsPicker.color.hsv.v);
-    let wcmd = C.tCommand.createtCommand(builder, this._applicationId, C.uCommand.tSinglePwmCommand, cmd);
+    let cmd=tSinglePwmCommand.createtSinglePwmCommand(builder, E.eSinglePwmCommand.TOGGLE, this.spotsPicker.color.hsv.v);
+    let wcmd = tCommand.createtCommand(builder, this._applicationId, uCommand.tSinglePwmCommand, cmd);
     builder.finish(wcmd);
     let arr:Uint8Array = builder.asUint8Array();
-    this.comm.putCommand(arr).subscribe((state:S.tState)=>{this.state=state});
+    this.comm.putCommand(arr).subscribe((state:tState)=>{this.state=state});
   }
 
   constructor(public ngZone: NgZone, private comm:CommunicationService) {

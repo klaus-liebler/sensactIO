@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { tStateWrapper } from '../../sensact/comm/t-state-wrapper';
+import { tStateWrapper } from '../../sensact/comm/t-state-wrapper.js';
 
 
 export class tState {

@@ -8,9 +8,9 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-static_assert(FLATBUFFERS_VERSION_MAJOR == 2 &&
-              FLATBUFFERS_VERSION_MINOR == 0 &&
-              FLATBUFFERS_VERSION_REVISION == 8,
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 3 &&
+              FLATBUFFERS_VERSION_REVISION == 3,
              "Non-compatible flatbuffers version included");
 
 namespace sensact {
@@ -53,7 +53,7 @@ inline const char * const *EnumNameseRelayInterlockMode() {
 }
 
 inline const char *EnumNameeRelayInterlockMode(eRelayInterlockMode e) {
-  if (flatbuffers::IsOutRange(e, eRelayInterlockMode_R1_UP__R2_DOWN, eRelayInterlockMode_R1_DOWN__R2_POWER)) return "";
+  if (::flatbuffers::IsOutRange(e, eRelayInterlockMode_R1_UP__R2_DOWN, eRelayInterlockMode_R1_DOWN__R2_POWER)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNameseRelayInterlockMode()[index];
 }
@@ -89,7 +89,7 @@ inline const char * const *EnumNameseBlindState() {
 }
 
 inline const char *EnumNameeBlindState(eBlindState e) {
-  if (flatbuffers::IsOutRange(e, eBlindState_STOP, eBlindState_PREPARE)) return "";
+  if (::flatbuffers::IsOutRange(e, eBlindState_STOP, eBlindState_PREPARE)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNameseBlindState()[index];
 }
@@ -128,7 +128,7 @@ inline const char * const *EnumNameseBlindCommand() {
 }
 
 inline const char *EnumNameeBlindCommand(eBlindCommand e) {
-  if (flatbuffers::IsOutRange(e, eBlindCommand_STOP, eBlindCommand_DOWN_OR_STOP)) return "";
+  if (::flatbuffers::IsOutRange(e, eBlindCommand_STOP, eBlindCommand_DOWN_OR_STOP)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNameseBlindCommand()[index];
 }
@@ -164,7 +164,7 @@ inline const char * const *EnumNameseSinglePwmCommand() {
 }
 
 inline const char *EnumNameeSinglePwmCommand(eSinglePwmCommand e) {
-  if (flatbuffers::IsOutRange(e, eSinglePwmCommand_TOGGLE, eSinglePwmCommand_CHANGE_INTENSITY)) return "";
+  if (::flatbuffers::IsOutRange(e, eSinglePwmCommand_TOGGLE, eSinglePwmCommand_CHANGE_INTENSITY)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNameseSinglePwmCommand()[index];
 }
@@ -221,7 +221,7 @@ inline const char * const *EnumNameseRgbwPwmCommand() {
 }
 
 inline const char *EnumNameeRgbwPwmCommand(eRgbwPwmCommand e) {
-  if (flatbuffers::IsOutRange(e, eRgbwPwmCommand_TOGGLE, eRgbwPwmCommand_CHANGE_WWCW_RATIO_0_1)) return "";
+  if (::flatbuffers::IsOutRange(e, eRgbwPwmCommand_TOGGLE, eRgbwPwmCommand_CHANGE_WWCW_RATIO_0_1)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNameseRgbwPwmCommand()[index];
 }
@@ -260,7 +260,7 @@ inline const char * const *EnumNameseOnOffCommand() {
 }
 
 inline const char *EnumNameeOnOffCommand(eOnOffCommand e) {
-  if (flatbuffers::IsOutRange(e, eOnOffCommand_ON, eOnOffCommand_TRIGGER_MSECS)) return "";
+  if (::flatbuffers::IsOutRange(e, eOnOffCommand_ON, eOnOffCommand_TRIGGER_MSECS)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNameseOnOffCommand()[index];
 }
@@ -296,7 +296,7 @@ inline const char * const *EnumNameseOnOffState() {
 }
 
 inline const char *EnumNameeOnOffState(eOnOffState e) {
-  if (flatbuffers::IsOutRange(e, eOnOffState_MANUAL_OFF, eOnOffState_AUTO_ON)) return "";
+  if (::flatbuffers::IsOutRange(e, eOnOffState_MANUAL_OFF, eOnOffState_AUTO_ON)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNameseOnOffState()[index];
 }

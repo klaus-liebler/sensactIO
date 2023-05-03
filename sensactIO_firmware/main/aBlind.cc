@@ -17,7 +17,7 @@ ErrorCode cBlind::Setup(SensactContext *ctx)
 
 void cBlind::prepareUp(SensactContext *ctx)
 {
-	ESP_LOGI(TAG, "cBlind::prepareUp for id %d, currentState=%s", this->id, EnumNameeBlindState(this->currentState));
+	ESP_LOGI(TAG, "cBlind::prepareUp for id %lu, currentState=%s", this->id, EnumNameeBlindState(this->currentState));
 	this->currentState = eBlindState::eBlindState_PREPARE;
 	this->lastChanged = ctx->now;
 	switch (this->mode)
@@ -35,7 +35,7 @@ void cBlind::prepareUp(SensactContext *ctx)
 
 void cBlind::up(SensactContext *ctx)
 {
-	ESP_LOGI(TAG, "cBlind::up for id %d", this->id);
+	ESP_LOGI(TAG, "cBlind::up for id %lu", this->id);
 	this->currentState = eBlindState::eBlindState_UP;
 	this->lastChanged = ctx->now;
 	switch (this->mode)
@@ -57,7 +57,7 @@ void cBlind::up(SensactContext *ctx)
 
 void cBlind::prepareDown(SensactContext *ctx)
 {
-	ESP_LOGI(TAG, "cBlind::prepareDown for id %d, currentState=%s", this->id, EnumNameeBlindState(this->currentState));
+	ESP_LOGI(TAG, "cBlind::prepareDown for id %lu, currentState=%s", this->id, EnumNameeBlindState(this->currentState));
 	this->currentState = eBlindState::eBlindState_PREPARE;
 	this->lastChanged = ctx->now;
 	switch (this->mode)
@@ -75,7 +75,7 @@ void cBlind::prepareDown(SensactContext *ctx)
 
 void cBlind::down(SensactContext *ctx)
 {
-	ESP_LOGI(TAG, "cBlind::down for id %d", this->id);
+	ESP_LOGI(TAG, "cBlind::down for id %lu", this->id);
 	this->currentState = eBlindState::eBlindState_DOWN;
 	this->lastChanged = ctx->now;
 	switch (this->mode)
@@ -96,7 +96,7 @@ void cBlind::down(SensactContext *ctx)
 }
 void cBlind::stop(SensactContext *ctx)
 {
-	ESP_LOGI(TAG, "cBlind::stop for id %d", this->id);
+	ESP_LOGI(TAG, "cBlind::stop for id %lu", this->id);
 	this->currentState = eBlindState::eBlindState_STOP;
 	this->lastChanged = ctx->now;
 	switch (this->mode)
@@ -161,7 +161,7 @@ ErrorCode cBlind::ProcessCommand(const tCommand *msg)
 
 ErrorCode cBlind::Loop(SensactContext *ctx)
 {
-	ESP_LOGD(TAG, "cBlind::Loop for id %d, currentState=%s, this->requestedState=%s ", this->id, EnumNameeBlindState(this->currentState), EnumNameeBlindState(this->requestedState));
+	ESP_LOGD(TAG, "cBlind::Loop for id %lu, currentState=%s, this->requestedState=%s ", this->id, EnumNameeBlindState(this->currentState), EnumNameeBlindState(this->requestedState));
 	
 	if ((this->currentState == eBlindState::eBlindState_UP  && ctx->now - lastChanged >= time_up_msecs) || (this->currentState == eBlindState::eBlindState_DOWN  && ctx->now - lastChanged >= time_down_msecs))
 	{
@@ -225,6 +225,6 @@ cBlind *cBlind::Build(uint32_t const id, const tConfigWrapper* cfg)
 		return nullptr;
 	}
 	auto x = cfg->config_as_tBlindConfig();
-	ESP_LOGI(TAG, "Build uConfig_tBlindConfig for id %d, relay1=%d, relay2=%d", id, x->relay1(), x->relay2());
+	ESP_LOGI(TAG, "Build uConfig_tBlindConfig for id %lu, relay1=%d, relay2=%d", id, x->relay1(), x->relay2());
 	return new cBlind(id, x->relay1(), x->relay2(), x->mode(), x->time_up_msecs(), x->time_down_msecs());
 }

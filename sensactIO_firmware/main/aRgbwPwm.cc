@@ -8,7 +8,7 @@
 cRgbwPWM::cRgbwPWM(uint32_t id, const uint16_t pwmR, const uint16_t pwmG, const uint16_t pwmB, const uint16_t pwmWW, const uint16_t pwmCW, uint32_t autoOffMsecs, uint32_t idOfStandbyController):
 	cApplication(id), pwmR(pwmR), pwmG(pwmG), pwmB(pwmB), pwmWW(pwmWW), pwmCW(pwmCW), autoOffMsecs(autoOffMsecs), idOfStandbyController(idOfStandbyController), on(false), changed(false)
 {
-	ESP_LOGI(TAG, "Build cRgbwPWM for id:%d, pwmR:%d autoOffMsecs:%d idOfStandbyController:%d", id, pwmR, autoOffMsecs, idOfStandbyController);
+	ESP_LOGI(TAG, "Build cRgbwPWM for id:%lu, pwmR:%d autoOffMsecs:%lu idOfStandbyController:%lu", id, pwmR, autoOffMsecs, idOfStandbyController);
 }
 
 ErrorCode cRgbwPWM::Setup(SensactContext *ctx) {
@@ -20,13 +20,13 @@ ErrorCode cRgbwPWM::Loop(SensactContext *ctx)
 {
 	if(!changed && on && autoOffMsecs!=0 && lastChanged+autoOffMsecs<ctx->now){
 		//das !changed muss auch abgefragt werden, weil sonst ein Command hier direkt abgeblockt werden könnte
-		ESP_LOGI(TAG, "AutoOff id %d after %d ms", id, autoOffMsecs);
+		ESP_LOGI(TAG, "AutoOff id %lu after %lu ms", id, autoOffMsecs);
 		this->changed=true;
 		this->on=false;
 	}
 	
 	if(idOfStandbyController!=0 && this->on && lastHeartbeatSent+3000<ctx->now){
-		ESP_LOGI(TAG, "Sending heartbeat from id %d to id %d", id, idOfStandbyController);
+		ESP_LOGI(TAG, "Sending heartbeat from id %lu to id %lu", id, idOfStandbyController);
 		flatbuffers::FlatBufferBuilder builder(64);
 		auto onOffCmd=CreatetOnOffCommand(builder, eOnOffCommand_TRIGGER);
 		auto cmd = sensact::comm::CreatetCommand(builder, idOfStandbyController, uCommand::uCommand_tOnOffCommand, onOffCmd.Union());
@@ -38,7 +38,7 @@ ErrorCode cRgbwPWM::Loop(SensactContext *ctx)
 	if(!this->changed){
 		return ErrorCode::OK;
 	}
-	ESP_LOGI(TAG, "Changes occuredin id %d", id);
+	ESP_LOGI(TAG, "Changes occuredin id %lu", id);
 	this->changed=false;
 	this->lastChanged=ctx->now;
 	if(!this->on){
@@ -111,20 +111,20 @@ ErrorCode cRgbwPWM::ProcessCommand(const tCommand* msg){
 	case eRgbwPwmCommand_TOGGLE:
 		this->on=!this->on;
 		this->changed=true;
-		ESP_LOGI(TAG, "eRGBWPwmCommand_TOGGLE for id %d, now %s", id, on ? "on" : "off");
+		ESP_LOGI(TAG, "eRGBWPwmCommand_TOGGLE for id %lu, now %s", id, on ? "on" : "off");
 		break;
 	case eRgbwPwmCommand_ON:
 		if(!this->on){
 			on=true;
 			changed=true;
-			ESP_LOGI(TAG, "eRgbwPwmCommand_ON for id %d, now %s", id, on ? "on" : "off");
+			ESP_LOGI(TAG, "eRgbwPwmCommand_ON for id %lu, now %s", id, on ? "on" : "off");
 		}
 		break;
 	case eRgbwPwmCommand_OFF:
 		if(this->on){
 			on=false;
 			changed=true;
-			ESP_LOGI(TAG, "eRgbwPwmCommand_OFF for id %d, now %s", id, on ? "on" : "off");
+			ESP_LOGI(TAG, "eRgbwPwmCommand_OFF for id %lu, now %s", id, on ? "on" : "off");
 		}
 		break;
 	case eRgbwPwmCommand_CHANGE_HUE_0_360:

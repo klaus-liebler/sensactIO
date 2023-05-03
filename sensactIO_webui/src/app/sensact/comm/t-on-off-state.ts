@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { eOnOffState } from '../../sensact/comm/e-on-off-state';
+import { eOnOffState } from '../../sensact/comm/e-on-off-state.js';
 
 
 export class tOnOffState {

@@ -8,9 +8,9 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-static_assert(FLATBUFFERS_VERSION_MAJOR == 2 &&
-              FLATBUFFERS_VERSION_MINOR == 0 &&
-              FLATBUFFERS_VERSION_REVISION == 8,
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 3 &&
+              FLATBUFFERS_VERSION_REVISION == 3,
              "Non-compatible flatbuffers version included");
 
 #include "_common_generated.h"
@@ -70,7 +70,7 @@ inline const char * const *EnumNamesuState() {
 }
 
 inline const char *EnumNameuState(uState e) {
-  if (flatbuffers::IsOutRange(e, uState_NONE, uState_tRgbwPwmState)) return "";
+  if (::flatbuffers::IsOutRange(e, uState_NONE, uState_tRgbwPwmState)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesuState()[index];
 }
@@ -95,10 +95,10 @@ template<> struct uStateTraits<sensact::comm::tRgbwPwmState> {
   static const uState enum_value = uState_tRgbwPwmState;
 };
 
-bool VerifyuState(flatbuffers::Verifier &verifier, const void *obj, uState type);
-bool VerifyuStateVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
+bool VerifyuState(::flatbuffers::Verifier &verifier, const void *obj, uState type);
+bool VerifyuStateVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
-struct tBlindState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tBlindState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tBlindStateBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_POSITION = 4,
@@ -110,7 +110,7 @@ struct tBlindState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   sensact::comm::eBlindState state() const {
     return static_cast<sensact::comm::eBlindState>(GetField<int8_t>(VT_STATE, 0));
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_POSITION, 2) &&
            VerifyField<int8_t>(verifier, VT_STATE, 1) &&
@@ -120,27 +120,27 @@ struct tBlindState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tBlindStateBuilder {
   typedef tBlindState Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_position(uint16_t position) {
     fbb_.AddElement<uint16_t>(tBlindState::VT_POSITION, position, 0);
   }
   void add_state(sensact::comm::eBlindState state) {
     fbb_.AddElement<int8_t>(tBlindState::VT_STATE, static_cast<int8_t>(state), 0);
   }
-  explicit tBlindStateBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tBlindStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tBlindState> Finish() {
+  ::flatbuffers::Offset<tBlindState> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tBlindState>(end);
+    auto o = ::flatbuffers::Offset<tBlindState>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tBlindState> CreatetBlindState(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tBlindState> CreatetBlindState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t position = 0,
     sensact::comm::eBlindState state = sensact::comm::eBlindState_STOP) {
   tBlindStateBuilder builder_(_fbb);
@@ -149,7 +149,7 @@ inline flatbuffers::Offset<tBlindState> CreatetBlindState(
   return builder_.Finish();
 }
 
-struct tSinglePwmState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tSinglePwmState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tSinglePwmStateBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_INTENSITY_0_1 = 4,
@@ -161,7 +161,7 @@ struct tSinglePwmState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   bool on() const {
     return GetField<uint8_t>(VT_ON, 0) != 0;
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<float>(verifier, VT_INTENSITY_0_1, 4) &&
            VerifyField<uint8_t>(verifier, VT_ON, 1) &&
@@ -171,27 +171,27 @@ struct tSinglePwmState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tSinglePwmStateBuilder {
   typedef tSinglePwmState Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_intensity_0_1(float intensity_0_1) {
     fbb_.AddElement<float>(tSinglePwmState::VT_INTENSITY_0_1, intensity_0_1, 0.0f);
   }
   void add_on(bool on) {
     fbb_.AddElement<uint8_t>(tSinglePwmState::VT_ON, static_cast<uint8_t>(on), 0);
   }
-  explicit tSinglePwmStateBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tSinglePwmStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tSinglePwmState> Finish() {
+  ::flatbuffers::Offset<tSinglePwmState> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tSinglePwmState>(end);
+    auto o = ::flatbuffers::Offset<tSinglePwmState>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tSinglePwmState> CreatetSinglePwmState(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tSinglePwmState> CreatetSinglePwmState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     float intensity_0_1 = 0.0f,
     bool on = false) {
   tSinglePwmStateBuilder builder_(_fbb);
@@ -200,7 +200,7 @@ inline flatbuffers::Offset<tSinglePwmState> CreatetSinglePwmState(
   return builder_.Finish();
 }
 
-struct tRgbwPwmState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tRgbwPwmState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tRgbwPwmStateBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_R = 4,
@@ -228,7 +228,7 @@ struct tRgbwPwmState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   bool on() const {
     return GetField<uint8_t>(VT_ON, 0) != 0;
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_R, 1) &&
            VerifyField<uint8_t>(verifier, VT_G, 1) &&
@@ -242,8 +242,8 @@ struct tRgbwPwmState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tRgbwPwmStateBuilder {
   typedef tRgbwPwmState Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_r(uint8_t r) {
     fbb_.AddElement<uint8_t>(tRgbwPwmState::VT_R, r, 0);
   }
@@ -262,19 +262,19 @@ struct tRgbwPwmStateBuilder {
   void add_on(bool on) {
     fbb_.AddElement<uint8_t>(tRgbwPwmState::VT_ON, static_cast<uint8_t>(on), 0);
   }
-  explicit tRgbwPwmStateBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tRgbwPwmStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tRgbwPwmState> Finish() {
+  ::flatbuffers::Offset<tRgbwPwmState> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tRgbwPwmState>(end);
+    auto o = ::flatbuffers::Offset<tRgbwPwmState>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tRgbwPwmState> CreatetRgbwPwmState(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tRgbwPwmState> CreatetRgbwPwmState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint8_t r = 0,
     uint8_t g = 0,
     uint8_t b = 0,
@@ -291,7 +291,7 @@ inline flatbuffers::Offset<tRgbwPwmState> CreatetRgbwPwmState(
   return builder_.Finish();
 }
 
-struct tOnOffState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tOnOffState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tOnOffStateBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_STATE = 4
@@ -299,7 +299,7 @@ struct tOnOffState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   sensact::comm::eOnOffState state() const {
     return static_cast<sensact::comm::eOnOffState>(GetField<int8_t>(VT_STATE, 0));
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_STATE, 1) &&
            verifier.EndTable();
@@ -308,31 +308,31 @@ struct tOnOffState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tOnOffStateBuilder {
   typedef tOnOffState Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_state(sensact::comm::eOnOffState state) {
     fbb_.AddElement<int8_t>(tOnOffState::VT_STATE, static_cast<int8_t>(state), 0);
   }
-  explicit tOnOffStateBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tOnOffStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tOnOffState> Finish() {
+  ::flatbuffers::Offset<tOnOffState> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tOnOffState>(end);
+    auto o = ::flatbuffers::Offset<tOnOffState>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tOnOffState> CreatetOnOffState(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tOnOffState> CreatetOnOffState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     sensact::comm::eOnOffState state = sensact::comm::eOnOffState_MANUAL_OFF) {
   tOnOffStateBuilder builder_(_fbb);
   builder_.add_state(state);
   return builder_.Finish();
 }
 
-struct tStateWrapper FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tStateWrapper FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tStateWrapperBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_APPLICATION_ID = 4,
@@ -361,7 +361,7 @@ struct tStateWrapper FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const sensact::comm::tRgbwPwmState *state_as_tRgbwPwmState() const {
     return state_type() == sensact::comm::uState_tRgbwPwmState ? static_cast<const sensact::comm::tRgbwPwmState *>(state()) : nullptr;
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_APPLICATION_ID, 4) &&
            VerifyField<uint8_t>(verifier, VT_STATE_TYPE, 1) &&
@@ -389,33 +389,33 @@ template<> inline const sensact::comm::tRgbwPwmState *tStateWrapper::state_as<se
 
 struct tStateWrapperBuilder {
   typedef tStateWrapper Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_application_id(uint32_t application_id) {
     fbb_.AddElement<uint32_t>(tStateWrapper::VT_APPLICATION_ID, application_id, 0);
   }
   void add_state_type(sensact::comm::uState state_type) {
     fbb_.AddElement<uint8_t>(tStateWrapper::VT_STATE_TYPE, static_cast<uint8_t>(state_type), 0);
   }
-  void add_state(flatbuffers::Offset<void> state) {
+  void add_state(::flatbuffers::Offset<void> state) {
     fbb_.AddOffset(tStateWrapper::VT_STATE, state);
   }
-  explicit tStateWrapperBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tStateWrapperBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tStateWrapper> Finish() {
+  ::flatbuffers::Offset<tStateWrapper> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tStateWrapper>(end);
+    auto o = ::flatbuffers::Offset<tStateWrapper>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tStateWrapper> CreatetStateWrapper(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tStateWrapper> CreatetStateWrapper(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t application_id = 0,
     sensact::comm::uState state_type = sensact::comm::uState_NONE,
-    flatbuffers::Offset<void> state = 0) {
+    ::flatbuffers::Offset<void> state = 0) {
   tStateWrapperBuilder builder_(_fbb);
   builder_.add_state(state);
   builder_.add_application_id(application_id);
@@ -423,7 +423,7 @@ inline flatbuffers::Offset<tStateWrapper> CreatetStateWrapper(
   return builder_.Finish();
 }
 
-struct tState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tStateBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIMESTAMP = 4,
@@ -432,10 +432,10 @@ struct tState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t timestamp() const {
     return GetField<uint32_t>(VT_TIMESTAMP, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<sensact::comm::tStateWrapper>> *states() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<sensact::comm::tStateWrapper>> *>(VT_STATES);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<sensact::comm::tStateWrapper>> *states() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<sensact::comm::tStateWrapper>> *>(VT_STATES);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_TIMESTAMP, 4) &&
            VerifyOffset(verifier, VT_STATES) &&
@@ -447,47 +447,47 @@ struct tState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tStateBuilder {
   typedef tState Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_timestamp(uint32_t timestamp) {
     fbb_.AddElement<uint32_t>(tState::VT_TIMESTAMP, timestamp, 0);
   }
-  void add_states(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<sensact::comm::tStateWrapper>>> states) {
+  void add_states(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<sensact::comm::tStateWrapper>>> states) {
     fbb_.AddOffset(tState::VT_STATES, states);
   }
-  explicit tStateBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tState> Finish() {
+  ::flatbuffers::Offset<tState> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tState>(end);
+    auto o = ::flatbuffers::Offset<tState>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tState> CreatetState(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tState> CreatetState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t timestamp = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<sensact::comm::tStateWrapper>>> states = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<sensact::comm::tStateWrapper>>> states = 0) {
   tStateBuilder builder_(_fbb);
   builder_.add_states(states);
   builder_.add_timestamp(timestamp);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<tState> CreatetStateDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tState> CreatetStateDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t timestamp = 0,
-    const std::vector<flatbuffers::Offset<sensact::comm::tStateWrapper>> *states = nullptr) {
-  auto states__ = states ? _fbb.CreateVector<flatbuffers::Offset<sensact::comm::tStateWrapper>>(*states) : 0;
+    const std::vector<::flatbuffers::Offset<sensact::comm::tStateWrapper>> *states = nullptr) {
+  auto states__ = states ? _fbb.CreateVector<::flatbuffers::Offset<sensact::comm::tStateWrapper>>(*states) : 0;
   return sensact::comm::CreatetState(
       _fbb,
       timestamp,
       states__);
 }
 
-inline bool VerifyuState(flatbuffers::Verifier &verifier, const void *obj, uState type) {
+inline bool VerifyuState(::flatbuffers::Verifier &verifier, const void *obj, uState type) {
   switch (type) {
     case uState_NONE: {
       return true;
@@ -512,10 +512,10 @@ inline bool VerifyuState(flatbuffers::Verifier &verifier, const void *obj, uStat
   }
 }
 
-inline bool VerifyuStateVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types) {
+inline bool VerifyuStateVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
   if (!values || !types) return !values && !types;
   if (values->size() != types->size()) return false;
-  for (flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
+  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
     if (!VerifyuState(
         verifier,  values->Get(i), types->GetEnum<uState>(i))) {
       return false;
@@ -525,11 +525,11 @@ inline bool VerifyuStateVector(flatbuffers::Verifier &verifier, const flatbuffer
 }
 
 inline const sensact::comm::tState *GettState(const void *buf) {
-  return flatbuffers::GetRoot<sensact::comm::tState>(buf);
+  return ::flatbuffers::GetRoot<sensact::comm::tState>(buf);
 }
 
 inline const sensact::comm::tState *GetSizePrefixedtState(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<sensact::comm::tState>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<sensact::comm::tState>(buf);
 }
 
 inline const char *tStateIdentifier() {
@@ -537,34 +537,34 @@ inline const char *tStateIdentifier() {
 }
 
 inline bool tStateBufferHasIdentifier(const void *buf) {
-  return flatbuffers::BufferHasIdentifier(
+  return ::flatbuffers::BufferHasIdentifier(
       buf, tStateIdentifier());
 }
 
 inline bool SizePrefixedtStateBufferHasIdentifier(const void *buf) {
-  return flatbuffers::BufferHasIdentifier(
+  return ::flatbuffers::BufferHasIdentifier(
       buf, tStateIdentifier(), true);
 }
 
 inline bool VerifytStateBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<sensact::comm::tState>(tStateIdentifier());
 }
 
 inline bool VerifySizePrefixedtStateBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<sensact::comm::tState>(tStateIdentifier());
 }
 
 inline void FinishtStateBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<sensact::comm::tState> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<sensact::comm::tState> root) {
   fbb.Finish(root, tStateIdentifier());
 }
 
 inline void FinishSizePrefixedtStateBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<sensact::comm::tState> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<sensact::comm::tState> root) {
   fbb.FinishSizePrefixed(root, tStateIdentifier());
 }
 

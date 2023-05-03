@@ -85,7 +85,7 @@ esp_err_t handle_put_iocfg(httpd_req_t *req)//browser sends new configuraion of 
     return helper_put_binary_file(req, Paths::DEFAULTCFG_PATH, true);
 }
 
-esp_err_t handle_put_devctrl(httpd_req_t *req)//browser sends new configuraion of IOs
+esp_err_t handle_put_devctrl(httpd_req_t *req)//reset system
 {
     httpd_resp_sendstr(req, "Device will be restarted");
     ESP_LOGI(TAG, "Device will be restarted");

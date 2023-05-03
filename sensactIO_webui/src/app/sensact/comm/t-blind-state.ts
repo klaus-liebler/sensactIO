@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { eBlindState } from '../../sensact/comm/e-blind-state';
+import { eBlindState } from '../../sensact/comm/e-blind-state.js';
 
 
 export class tBlindState {

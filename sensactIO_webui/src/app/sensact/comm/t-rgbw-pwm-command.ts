@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { eRgbwPwmCommand } from '../../sensact/comm/e-rgbw-pwm-command';
+import { eRgbwPwmCommand } from '../../sensact/comm/e-rgbw-pwm-command.js';
 
 
 export class tRgbwPwmCommand {

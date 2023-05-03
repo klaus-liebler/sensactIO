@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { eBlindCommand } from '../../sensact/comm/e-blind-command';
+import { eBlindCommand } from '../../sensact/comm/e-blind-command.js';
 
 
 export class tBlindCommand {

@@ -78,7 +78,7 @@ function createFlatbuffersCppHeader() {
 }
 
 function copyFlatbufferTSRessourceToProject() {
-    return gulp.src(GEN_FLATBUFFER_IDL + "**/*.ts")
+    return gulp.src(GEN_FLATBUFFER_IDL + "**/*.[tj]s")
 
         .pipe(gulp.dest(DEST_FLATBUFFERS_TS))
 }
@@ -142,9 +142,9 @@ function buildAndFlash(cb: Function) {
 
 exports.build = gulp.series(
     cleanGen,
-    gulp.parallel(gulp.series(createFlatbuffersTsHeader,/* modifyFlatbuffersTSHeader*/), createFlatbuffersCppHeader),
-    gulp.parallel(copyFlatbufferTSRessourceToProject, copyFlatbufferCPPRessourceToProject),
+    gulp.parallel(createFlatbuffersTsHeader, createFlatbuffersCppHeader),
     transpileFlatbuffersTSHeader,
+    gulp.parallel(copyFlatbufferTSRessourceToProject, copyFlatbufferCPPRessourceToProject),
     transpileFlatbufferCfgCreators,
     executeFlatbufferCfgCreators,
     copyFlatbuffersCfgToProject,

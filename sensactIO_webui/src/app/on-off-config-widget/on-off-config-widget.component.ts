@@ -1,8 +1,16 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Widget } from '../config-ui/config-ui.component';
 import * as fb from 'flatbuffers';
-import * as S from '../state_generated';
-import * as CFG from '../config_generated';
+import { tOnOffCommand } from '../sensact/comm/t-on-off-command';
+import { tOnOffConfig } from '../sensact/comm/t-on-off-config';
+import { tOnOffState } from '../sensact/comm/t-on-off-state';
+import { tConfigWrapper } from '../sensact/comm/t-config-wrapper';
+import {tCommand}  from '../sensact/comm/t-command';
+import {uCommand}  from '../sensact/comm/u-command';
+import {tState}  from '../sensact/comm/t-state';
+import {uState}  from '../sensact/comm/u-state';
+import * as E from '../sensact/comm';
+import {uConfig}  from  '../sensact/comm/u-config';
 
 @Component({
   selector: 'app-on-off-config-widget',
@@ -10,13 +18,13 @@ import * as CFG from '../config_generated';
   styleUrls: ['./on-off-config-widget.component.scss']
 })
 export class OnOffConfigWidgetComponent implements OnInit {
-  OnOffStates=S.eOnOffState;
+  OnOffStates=E.eOnOffState;
 
-  RelayInterlockModes=CFG.eRelayInterlockMode;
+  RelayInterlockModes=E.eRelayInterlockMode;
   _widgetData:Widget;
 
   public relay:number;
-  public initialState:CFG.eOnOffState;
+  public initialState:E.eOnOffState;
   public autoOffMsecs:number;
   
   
@@ -24,10 +32,10 @@ export class OnOffConfigWidgetComponent implements OnInit {
     this._widgetData=w;
     w.configWrapperCreator=this;
     if(w.rawData==null)return
-    if(w.rawData.configType()!=CFG.uConfig.tOnOffConfig) return;
-    this.relay=w.rawData.config(new CFG.tOnOffConfig()).relay();
-    this.initialState=w.rawData.config(new CFG.tOnOffConfig()).initialState();
-    this.autoOffMsecs=w.rawData.config(new CFG.tOnOffConfig()).autoOffMsecs();  
+    if(w.rawData.configType()!=uConfig.tOnOffConfig) return;
+    this.relay=w.rawData.config(new tOnOffConfig()).relay();
+    this.initialState=w.rawData.config(new tOnOffConfig()).initialState();
+    this.autoOffMsecs=w.rawData.config(new tOnOffConfig()).autoOffMsecs();  
   }
 
   @Output() deleteItemEvent = new EventEmitter<number>();
@@ -39,8 +47,8 @@ export class OnOffConfigWidgetComponent implements OnInit {
   onBtnDownClicked=()=>this.moveItemDownEvent.emit(this._widgetData.index);
 
   BuildAndReturnConfigWrapper(builder: fb.Builder):fb.Offset {
-    let cfg3=CFG.tOnOffConfig.createtOnOffConfig(builder, this.relay, this.autoOffMsecs, this.initialState);
-    return CFG.tConfigWrapper.createtConfigWrapper(builder, CFG.uConfig.tOnOffConfig, cfg3);
+    let cfg3=tOnOffConfig.createtOnOffConfig(builder, this.relay, this.autoOffMsecs, this.initialState);
+    return tConfigWrapper.createtConfigWrapper(builder, uConfig.tOnOffConfig, cfg3);
   }
   constructor() { }
 

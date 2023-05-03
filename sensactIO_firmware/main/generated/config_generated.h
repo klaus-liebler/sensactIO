@@ -8,9 +8,9 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-static_assert(FLATBUFFERS_VERSION_MAJOR == 2 &&
-              FLATBUFFERS_VERSION_MINOR == 0 &&
-              FLATBUFFERS_VERSION_REVISION == 8,
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 3 &&
+              FLATBUFFERS_VERSION_REVISION == 3,
              "Non-compatible flatbuffers version included");
 
 #include "_common_generated.h"
@@ -70,7 +70,7 @@ inline const char * const *EnumNamesuConfig() {
 }
 
 inline const char *EnumNameuConfig(uConfig e) {
-  if (flatbuffers::IsOutRange(e, uConfig_NONE, uConfig_tRgbwPwmConfig)) return "";
+  if (::flatbuffers::IsOutRange(e, uConfig_NONE, uConfig_tRgbwPwmConfig)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesuConfig()[index];
 }
@@ -95,10 +95,10 @@ template<> struct uConfigTraits<sensact::comm::tRgbwPwmConfig> {
   static const uConfig enum_value = uConfig_tRgbwPwmConfig;
 };
 
-bool VerifyuConfig(flatbuffers::Verifier &verifier, const void *obj, uConfig type);
-bool VerifyuConfigVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
+bool VerifyuConfig(::flatbuffers::Verifier &verifier, const void *obj, uConfig type);
+bool VerifyuConfigVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
-struct tBlindConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tBlindConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tBlindConfigBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RELAY1 = 4,
@@ -122,7 +122,7 @@ struct tBlindConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t time_down_msecs() const {
     return GetField<uint32_t>(VT_TIME_DOWN_MSECS, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_RELAY1, 2) &&
            VerifyField<uint16_t>(verifier, VT_RELAY2, 2) &&
@@ -135,8 +135,8 @@ struct tBlindConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tBlindConfigBuilder {
   typedef tBlindConfig Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_relay1(uint16_t relay1) {
     fbb_.AddElement<uint16_t>(tBlindConfig::VT_RELAY1, relay1, 0);
   }
@@ -152,19 +152,19 @@ struct tBlindConfigBuilder {
   void add_time_down_msecs(uint32_t time_down_msecs) {
     fbb_.AddElement<uint32_t>(tBlindConfig::VT_TIME_DOWN_MSECS, time_down_msecs, 0);
   }
-  explicit tBlindConfigBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tBlindConfigBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tBlindConfig> Finish() {
+  ::flatbuffers::Offset<tBlindConfig> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tBlindConfig>(end);
+    auto o = ::flatbuffers::Offset<tBlindConfig>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tBlindConfig> CreatetBlindConfig(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tBlindConfig> CreatetBlindConfig(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t relay1 = 0,
     uint16_t relay2 = 0,
     sensact::comm::eRelayInterlockMode mode = sensact::comm::eRelayInterlockMode_R1_UP__R2_DOWN,
@@ -179,7 +179,7 @@ inline flatbuffers::Offset<tBlindConfig> CreatetBlindConfig(
   return builder_.Finish();
 }
 
-struct tSinglePwmConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tSinglePwmConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tSinglePwmConfigBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PWM_FIRST = 4,
@@ -199,7 +199,7 @@ struct tSinglePwmConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t auto_off_msecs() const {
     return GetField<uint32_t>(VT_AUTO_OFF_MSECS, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_PWM_FIRST, 2) &&
            VerifyField<uint16_t>(verifier, VT_PWM_LAST, 2) &&
@@ -211,8 +211,8 @@ struct tSinglePwmConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tSinglePwmConfigBuilder {
   typedef tSinglePwmConfig Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_pwm_first(uint16_t pwm_first) {
     fbb_.AddElement<uint16_t>(tSinglePwmConfig::VT_PWM_FIRST, pwm_first, 0);
   }
@@ -225,19 +225,19 @@ struct tSinglePwmConfigBuilder {
   void add_auto_off_msecs(uint32_t auto_off_msecs) {
     fbb_.AddElement<uint32_t>(tSinglePwmConfig::VT_AUTO_OFF_MSECS, auto_off_msecs, 0);
   }
-  explicit tSinglePwmConfigBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tSinglePwmConfigBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tSinglePwmConfig> Finish() {
+  ::flatbuffers::Offset<tSinglePwmConfig> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tSinglePwmConfig>(end);
+    auto o = ::flatbuffers::Offset<tSinglePwmConfig>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tSinglePwmConfig> CreatetSinglePwmConfig(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tSinglePwmConfig> CreatetSinglePwmConfig(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t pwm_first = 0,
     uint16_t pwm_last = 0,
     uint16_t id_of_standby_controller = 0,
@@ -250,7 +250,7 @@ inline flatbuffers::Offset<tSinglePwmConfig> CreatetSinglePwmConfig(
   return builder_.Finish();
 }
 
-struct tRgbwPwmConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tRgbwPwmConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tRgbwPwmConfigBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PWM_R = 4,
@@ -282,7 +282,7 @@ struct tRgbwPwmConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t auto_off_msecs() const {
     return GetField<uint32_t>(VT_AUTO_OFF_MSECS, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_PWM_R, 2) &&
            VerifyField<uint16_t>(verifier, VT_PWM_G, 2) &&
@@ -297,8 +297,8 @@ struct tRgbwPwmConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tRgbwPwmConfigBuilder {
   typedef tRgbwPwmConfig Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_pwm_r(uint16_t pwm_r) {
     fbb_.AddElement<uint16_t>(tRgbwPwmConfig::VT_PWM_R, pwm_r, 0);
   }
@@ -320,19 +320,19 @@ struct tRgbwPwmConfigBuilder {
   void add_auto_off_msecs(uint32_t auto_off_msecs) {
     fbb_.AddElement<uint32_t>(tRgbwPwmConfig::VT_AUTO_OFF_MSECS, auto_off_msecs, 0);
   }
-  explicit tRgbwPwmConfigBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tRgbwPwmConfigBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tRgbwPwmConfig> Finish() {
+  ::flatbuffers::Offset<tRgbwPwmConfig> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tRgbwPwmConfig>(end);
+    auto o = ::flatbuffers::Offset<tRgbwPwmConfig>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tRgbwPwmConfig> CreatetRgbwPwmConfig(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tRgbwPwmConfig> CreatetRgbwPwmConfig(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t pwm_r = 0,
     uint16_t pwm_g = 0,
     uint16_t pwm_b = 0,
@@ -351,7 +351,7 @@ inline flatbuffers::Offset<tRgbwPwmConfig> CreatetRgbwPwmConfig(
   return builder_.Finish();
 }
 
-struct tOnOffConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tOnOffConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tOnOffConfigBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RELAY = 4,
@@ -367,7 +367,7 @@ struct tOnOffConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   sensact::comm::eOnOffState initial_state() const {
     return static_cast<sensact::comm::eOnOffState>(GetField<int8_t>(VT_INITIAL_STATE, 0));
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_RELAY, 2) &&
            VerifyField<uint32_t>(verifier, VT_AUTO_OFF_MSECS, 4) &&
@@ -378,8 +378,8 @@ struct tOnOffConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tOnOffConfigBuilder {
   typedef tOnOffConfig Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_relay(uint16_t relay) {
     fbb_.AddElement<uint16_t>(tOnOffConfig::VT_RELAY, relay, 0);
   }
@@ -389,19 +389,19 @@ struct tOnOffConfigBuilder {
   void add_initial_state(sensact::comm::eOnOffState initial_state) {
     fbb_.AddElement<int8_t>(tOnOffConfig::VT_INITIAL_STATE, static_cast<int8_t>(initial_state), 0);
   }
-  explicit tOnOffConfigBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tOnOffConfigBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tOnOffConfig> Finish() {
+  ::flatbuffers::Offset<tOnOffConfig> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tOnOffConfig>(end);
+    auto o = ::flatbuffers::Offset<tOnOffConfig>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tOnOffConfig> CreatetOnOffConfig(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tOnOffConfig> CreatetOnOffConfig(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t relay = 0,
     uint32_t auto_off_msecs = 0,
     sensact::comm::eOnOffState initial_state = sensact::comm::eOnOffState_MANUAL_OFF) {
@@ -412,7 +412,7 @@ inline flatbuffers::Offset<tOnOffConfig> CreatetOnOffConfig(
   return builder_.Finish();
 }
 
-struct tConfigWrapper FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tConfigWrapper FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tConfigWrapperBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CONFIG_TYPE = 4,
@@ -437,7 +437,7 @@ struct tConfigWrapper FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const sensact::comm::tRgbwPwmConfig *config_as_tRgbwPwmConfig() const {
     return config_type() == sensact::comm::uConfig_tRgbwPwmConfig ? static_cast<const sensact::comm::tRgbwPwmConfig *>(config()) : nullptr;
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_CONFIG_TYPE, 1) &&
            VerifyOffset(verifier, VT_CONFIG) &&
@@ -464,36 +464,36 @@ template<> inline const sensact::comm::tRgbwPwmConfig *tConfigWrapper::config_as
 
 struct tConfigWrapperBuilder {
   typedef tConfigWrapper Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_config_type(sensact::comm::uConfig config_type) {
     fbb_.AddElement<uint8_t>(tConfigWrapper::VT_CONFIG_TYPE, static_cast<uint8_t>(config_type), 0);
   }
-  void add_config(flatbuffers::Offset<void> config) {
+  void add_config(::flatbuffers::Offset<void> config) {
     fbb_.AddOffset(tConfigWrapper::VT_CONFIG, config);
   }
-  explicit tConfigWrapperBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tConfigWrapperBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tConfigWrapper> Finish() {
+  ::flatbuffers::Offset<tConfigWrapper> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tConfigWrapper>(end);
+    auto o = ::flatbuffers::Offset<tConfigWrapper>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tConfigWrapper> CreatetConfigWrapper(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tConfigWrapper> CreatetConfigWrapper(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     sensact::comm::uConfig config_type = sensact::comm::uConfig_NONE,
-    flatbuffers::Offset<void> config = 0) {
+    ::flatbuffers::Offset<void> config = 0) {
   tConfigWrapperBuilder builder_(_fbb);
   builder_.add_config(config);
   builder_.add_config_type(config_type);
   return builder_.Finish();
 }
 
-struct tIoConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tIoConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tIoConfigBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIMESTAMP = 4,
@@ -502,10 +502,10 @@ struct tIoConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t timestamp() const {
     return GetField<uint32_t>(VT_TIMESTAMP, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<sensact::comm::tConfigWrapper>> *configs() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<sensact::comm::tConfigWrapper>> *>(VT_CONFIGS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<sensact::comm::tConfigWrapper>> *configs() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<sensact::comm::tConfigWrapper>> *>(VT_CONFIGS);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_TIMESTAMP, 4) &&
            VerifyOffset(verifier, VT_CONFIGS) &&
@@ -517,47 +517,47 @@ struct tIoConfig FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tIoConfigBuilder {
   typedef tIoConfig Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_timestamp(uint32_t timestamp) {
     fbb_.AddElement<uint32_t>(tIoConfig::VT_TIMESTAMP, timestamp, 0);
   }
-  void add_configs(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<sensact::comm::tConfigWrapper>>> configs) {
+  void add_configs(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<sensact::comm::tConfigWrapper>>> configs) {
     fbb_.AddOffset(tIoConfig::VT_CONFIGS, configs);
   }
-  explicit tIoConfigBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tIoConfigBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tIoConfig> Finish() {
+  ::flatbuffers::Offset<tIoConfig> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tIoConfig>(end);
+    auto o = ::flatbuffers::Offset<tIoConfig>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tIoConfig> CreatetIoConfig(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tIoConfig> CreatetIoConfig(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t timestamp = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<sensact::comm::tConfigWrapper>>> configs = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<sensact::comm::tConfigWrapper>>> configs = 0) {
   tIoConfigBuilder builder_(_fbb);
   builder_.add_configs(configs);
   builder_.add_timestamp(timestamp);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<tIoConfig> CreatetIoConfigDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tIoConfig> CreatetIoConfigDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t timestamp = 0,
-    const std::vector<flatbuffers::Offset<sensact::comm::tConfigWrapper>> *configs = nullptr) {
-  auto configs__ = configs ? _fbb.CreateVector<flatbuffers::Offset<sensact::comm::tConfigWrapper>>(*configs) : 0;
+    const std::vector<::flatbuffers::Offset<sensact::comm::tConfigWrapper>> *configs = nullptr) {
+  auto configs__ = configs ? _fbb.CreateVector<::flatbuffers::Offset<sensact::comm::tConfigWrapper>>(*configs) : 0;
   return sensact::comm::CreatetIoConfig(
       _fbb,
       timestamp,
       configs__);
 }
 
-inline bool VerifyuConfig(flatbuffers::Verifier &verifier, const void *obj, uConfig type) {
+inline bool VerifyuConfig(::flatbuffers::Verifier &verifier, const void *obj, uConfig type) {
   switch (type) {
     case uConfig_NONE: {
       return true;
@@ -582,10 +582,10 @@ inline bool VerifyuConfig(flatbuffers::Verifier &verifier, const void *obj, uCon
   }
 }
 
-inline bool VerifyuConfigVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types) {
+inline bool VerifyuConfigVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
   if (!values || !types) return !values && !types;
   if (values->size() != types->size()) return false;
-  for (flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
+  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
     if (!VerifyuConfig(
         verifier,  values->Get(i), types->GetEnum<uConfig>(i))) {
       return false;
@@ -595,11 +595,11 @@ inline bool VerifyuConfigVector(flatbuffers::Verifier &verifier, const flatbuffe
 }
 
 inline const sensact::comm::tIoConfig *GettIoConfig(const void *buf) {
-  return flatbuffers::GetRoot<sensact::comm::tIoConfig>(buf);
+  return ::flatbuffers::GetRoot<sensact::comm::tIoConfig>(buf);
 }
 
 inline const sensact::comm::tIoConfig *GetSizePrefixedtIoConfig(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<sensact::comm::tIoConfig>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<sensact::comm::tIoConfig>(buf);
 }
 
 inline const char *tIoConfigIdentifier() {
@@ -607,34 +607,34 @@ inline const char *tIoConfigIdentifier() {
 }
 
 inline bool tIoConfigBufferHasIdentifier(const void *buf) {
-  return flatbuffers::BufferHasIdentifier(
+  return ::flatbuffers::BufferHasIdentifier(
       buf, tIoConfigIdentifier());
 }
 
 inline bool SizePrefixedtIoConfigBufferHasIdentifier(const void *buf) {
-  return flatbuffers::BufferHasIdentifier(
+  return ::flatbuffers::BufferHasIdentifier(
       buf, tIoConfigIdentifier(), true);
 }
 
 inline bool VerifytIoConfigBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<sensact::comm::tIoConfig>(tIoConfigIdentifier());
 }
 
 inline bool VerifySizePrefixedtIoConfigBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<sensact::comm::tIoConfig>(tIoConfigIdentifier());
 }
 
 inline void FinishtIoConfigBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<sensact::comm::tIoConfig> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<sensact::comm::tIoConfig> root) {
   fbb.Finish(root, tIoConfigIdentifier());
 }
 
 inline void FinishSizePrefixedtIoConfigBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<sensact::comm::tIoConfig> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<sensact::comm::tIoConfig> root) {
   fbb.FinishSizePrefixed(root, tIoConfigIdentifier());
 }
 

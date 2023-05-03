@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { eSinglePwmCommand } from '../../sensact/comm/e-single-pwm-command';
+import { eSinglePwmCommand } from '../../sensact/comm/e-single-pwm-command.js';
 
 
 export class tSinglePwmCommand {

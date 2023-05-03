@@ -8,9 +8,9 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-static_assert(FLATBUFFERS_VERSION_MAJOR == 2 &&
-              FLATBUFFERS_VERSION_MINOR == 0 &&
-              FLATBUFFERS_VERSION_REVISION == 8,
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 3 &&
+              FLATBUFFERS_VERSION_REVISION == 3,
              "Non-compatible flatbuffers version included");
 
 #include "_common_generated.h"
@@ -67,7 +67,7 @@ inline const char * const *EnumNamesuCommand() {
 }
 
 inline const char *EnumNameuCommand(uCommand e) {
-  if (flatbuffers::IsOutRange(e, uCommand_NONE, uCommand_tRgbwPwmCommand)) return "";
+  if (::flatbuffers::IsOutRange(e, uCommand_NONE, uCommand_tRgbwPwmCommand)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesuCommand()[index];
 }
@@ -92,10 +92,10 @@ template<> struct uCommandTraits<sensact::comm::tRgbwPwmCommand> {
   static const uCommand enum_value = uCommand_tRgbwPwmCommand;
 };
 
-bool VerifyuCommand(flatbuffers::Verifier &verifier, const void *obj, uCommand type);
-bool VerifyuCommandVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
+bool VerifyuCommand(::flatbuffers::Verifier &verifier, const void *obj, uCommand type);
+bool VerifyuCommandVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
-struct tBlindCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tBlindCommand FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tBlindCommandBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CMD = 4
@@ -103,7 +103,7 @@ struct tBlindCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   sensact::comm::eBlindCommand cmd() const {
     return static_cast<sensact::comm::eBlindCommand>(GetField<int8_t>(VT_CMD, 0));
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_CMD, 1) &&
            verifier.EndTable();
@@ -112,31 +112,31 @@ struct tBlindCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tBlindCommandBuilder {
   typedef tBlindCommand Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_cmd(sensact::comm::eBlindCommand cmd) {
     fbb_.AddElement<int8_t>(tBlindCommand::VT_CMD, static_cast<int8_t>(cmd), 0);
   }
-  explicit tBlindCommandBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tBlindCommandBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tBlindCommand> Finish() {
+  ::flatbuffers::Offset<tBlindCommand> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tBlindCommand>(end);
+    auto o = ::flatbuffers::Offset<tBlindCommand>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tBlindCommand> CreatetBlindCommand(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tBlindCommand> CreatetBlindCommand(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     sensact::comm::eBlindCommand cmd = sensact::comm::eBlindCommand_STOP) {
   tBlindCommandBuilder builder_(_fbb);
   builder_.add_cmd(cmd);
   return builder_.Finish();
 }
 
-struct tSinglePwmCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tSinglePwmCommand FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tSinglePwmCommandBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CMD = 4,
@@ -148,7 +148,7 @@ struct tSinglePwmCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   float intensity_0_1() const {
     return GetField<float>(VT_INTENSITY_0_1, 0.0f);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_CMD, 1) &&
            VerifyField<float>(verifier, VT_INTENSITY_0_1, 4) &&
@@ -158,27 +158,27 @@ struct tSinglePwmCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tSinglePwmCommandBuilder {
   typedef tSinglePwmCommand Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_cmd(sensact::comm::eSinglePwmCommand cmd) {
     fbb_.AddElement<int8_t>(tSinglePwmCommand::VT_CMD, static_cast<int8_t>(cmd), 0);
   }
   void add_intensity_0_1(float intensity_0_1) {
     fbb_.AddElement<float>(tSinglePwmCommand::VT_INTENSITY_0_1, intensity_0_1, 0.0f);
   }
-  explicit tSinglePwmCommandBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tSinglePwmCommandBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tSinglePwmCommand> Finish() {
+  ::flatbuffers::Offset<tSinglePwmCommand> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tSinglePwmCommand>(end);
+    auto o = ::flatbuffers::Offset<tSinglePwmCommand>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tSinglePwmCommand> CreatetSinglePwmCommand(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tSinglePwmCommand> CreatetSinglePwmCommand(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     sensact::comm::eSinglePwmCommand cmd = sensact::comm::eSinglePwmCommand_TOGGLE,
     float intensity_0_1 = 0.0f) {
   tSinglePwmCommandBuilder builder_(_fbb);
@@ -187,7 +187,7 @@ inline flatbuffers::Offset<tSinglePwmCommand> CreatetSinglePwmCommand(
   return builder_.Finish();
 }
 
-struct tRgbwPwmCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tRgbwPwmCommand FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tRgbwPwmCommandBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CMD = 4,
@@ -199,7 +199,7 @@ struct tRgbwPwmCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   float payload() const {
     return GetField<float>(VT_PAYLOAD, 0.0f);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_CMD, 1) &&
            VerifyField<float>(verifier, VT_PAYLOAD, 4) &&
@@ -209,27 +209,27 @@ struct tRgbwPwmCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tRgbwPwmCommandBuilder {
   typedef tRgbwPwmCommand Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_cmd(sensact::comm::eRgbwPwmCommand cmd) {
     fbb_.AddElement<int8_t>(tRgbwPwmCommand::VT_CMD, static_cast<int8_t>(cmd), 0);
   }
   void add_payload(float payload) {
     fbb_.AddElement<float>(tRgbwPwmCommand::VT_PAYLOAD, payload, 0.0f);
   }
-  explicit tRgbwPwmCommandBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tRgbwPwmCommandBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tRgbwPwmCommand> Finish() {
+  ::flatbuffers::Offset<tRgbwPwmCommand> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tRgbwPwmCommand>(end);
+    auto o = ::flatbuffers::Offset<tRgbwPwmCommand>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tRgbwPwmCommand> CreatetRgbwPwmCommand(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tRgbwPwmCommand> CreatetRgbwPwmCommand(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     sensact::comm::eRgbwPwmCommand cmd = sensact::comm::eRgbwPwmCommand_TOGGLE,
     float payload = 0.0f) {
   tRgbwPwmCommandBuilder builder_(_fbb);
@@ -238,7 +238,7 @@ inline flatbuffers::Offset<tRgbwPwmCommand> CreatetRgbwPwmCommand(
   return builder_.Finish();
 }
 
-struct tOnOffCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tOnOffCommand FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tOnOffCommandBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CMD = 4,
@@ -250,7 +250,7 @@ struct tOnOffCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t msecs() const {
     return GetField<uint32_t>(VT_MSECS, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_CMD, 1) &&
            VerifyField<uint32_t>(verifier, VT_MSECS, 4) &&
@@ -260,27 +260,27 @@ struct tOnOffCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct tOnOffCommandBuilder {
   typedef tOnOffCommand Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_cmd(sensact::comm::eOnOffCommand cmd) {
     fbb_.AddElement<int8_t>(tOnOffCommand::VT_CMD, static_cast<int8_t>(cmd), 0);
   }
   void add_msecs(uint32_t msecs) {
     fbb_.AddElement<uint32_t>(tOnOffCommand::VT_MSECS, msecs, 0);
   }
-  explicit tOnOffCommandBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tOnOffCommandBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tOnOffCommand> Finish() {
+  ::flatbuffers::Offset<tOnOffCommand> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tOnOffCommand>(end);
+    auto o = ::flatbuffers::Offset<tOnOffCommand>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tOnOffCommand> CreatetOnOffCommand(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tOnOffCommand> CreatetOnOffCommand(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     sensact::comm::eOnOffCommand cmd = sensact::comm::eOnOffCommand_ON,
     uint32_t msecs = 0) {
   tOnOffCommandBuilder builder_(_fbb);
@@ -289,7 +289,7 @@ inline flatbuffers::Offset<tOnOffCommand> CreatetOnOffCommand(
   return builder_.Finish();
 }
 
-struct tCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct tCommand FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef tCommandBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_APPLICATION_ID = 4,
@@ -318,7 +318,7 @@ struct tCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const sensact::comm::tRgbwPwmCommand *command_as_tRgbwPwmCommand() const {
     return command_type() == sensact::comm::uCommand_tRgbwPwmCommand ? static_cast<const sensact::comm::tRgbwPwmCommand *>(command()) : nullptr;
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_APPLICATION_ID, 4) &&
            VerifyField<uint8_t>(verifier, VT_COMMAND_TYPE, 1) &&
@@ -346,33 +346,33 @@ template<> inline const sensact::comm::tRgbwPwmCommand *tCommand::command_as<sen
 
 struct tCommandBuilder {
   typedef tCommand Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_application_id(uint32_t application_id) {
     fbb_.AddElement<uint32_t>(tCommand::VT_APPLICATION_ID, application_id, 0);
   }
   void add_command_type(sensact::comm::uCommand command_type) {
     fbb_.AddElement<uint8_t>(tCommand::VT_COMMAND_TYPE, static_cast<uint8_t>(command_type), 0);
   }
-  void add_command(flatbuffers::Offset<void> command) {
+  void add_command(::flatbuffers::Offset<void> command) {
     fbb_.AddOffset(tCommand::VT_COMMAND, command);
   }
-  explicit tCommandBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit tCommandBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<tCommand> Finish() {
+  ::flatbuffers::Offset<tCommand> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<tCommand>(end);
+    auto o = ::flatbuffers::Offset<tCommand>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<tCommand> CreatetCommand(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<tCommand> CreatetCommand(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t application_id = 0,
     sensact::comm::uCommand command_type = sensact::comm::uCommand_NONE,
-    flatbuffers::Offset<void> command = 0) {
+    ::flatbuffers::Offset<void> command = 0) {
   tCommandBuilder builder_(_fbb);
   builder_.add_command(command);
   builder_.add_application_id(application_id);
@@ -380,7 +380,7 @@ inline flatbuffers::Offset<tCommand> CreatetCommand(
   return builder_.Finish();
 }
 
-inline bool VerifyuCommand(flatbuffers::Verifier &verifier, const void *obj, uCommand type) {
+inline bool VerifyuCommand(::flatbuffers::Verifier &verifier, const void *obj, uCommand type) {
   switch (type) {
     case uCommand_NONE: {
       return true;
@@ -405,10 +405,10 @@ inline bool VerifyuCommand(flatbuffers::Verifier &verifier, const void *obj, uCo
   }
 }
 
-inline bool VerifyuCommandVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types) {
+inline bool VerifyuCommandVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
   if (!values || !types) return !values && !types;
   if (values->size() != types->size()) return false;
-  for (flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
+  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
     if (!VerifyuCommand(
         verifier,  values->Get(i), types->GetEnum<uCommand>(i))) {
       return false;
@@ -418,11 +418,11 @@ inline bool VerifyuCommandVector(flatbuffers::Verifier &verifier, const flatbuff
 }
 
 inline const sensact::comm::tCommand *GettCommand(const void *buf) {
-  return flatbuffers::GetRoot<sensact::comm::tCommand>(buf);
+  return ::flatbuffers::GetRoot<sensact::comm::tCommand>(buf);
 }
 
 inline const sensact::comm::tCommand *GetSizePrefixedtCommand(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<sensact::comm::tCommand>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<sensact::comm::tCommand>(buf);
 }
 
 inline const char *tCommandIdentifier() {
@@ -430,34 +430,34 @@ inline const char *tCommandIdentifier() {
 }
 
 inline bool tCommandBufferHasIdentifier(const void *buf) {
-  return flatbuffers::BufferHasIdentifier(
+  return ::flatbuffers::BufferHasIdentifier(
       buf, tCommandIdentifier());
 }
 
 inline bool SizePrefixedtCommandBufferHasIdentifier(const void *buf) {
-  return flatbuffers::BufferHasIdentifier(
+  return ::flatbuffers::BufferHasIdentifier(
       buf, tCommandIdentifier(), true);
 }
 
 inline bool VerifytCommandBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<sensact::comm::tCommand>(tCommandIdentifier());
 }
 
 inline bool VerifySizePrefixedtCommandBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<sensact::comm::tCommand>(tCommandIdentifier());
 }
 
 inline void FinishtCommandBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<sensact::comm::tCommand> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<sensact::comm::tCommand> root) {
   fbb.Finish(root, tCommandIdentifier());
 }
 
 inline void FinishSizePrefixedtCommandBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<sensact::comm::tCommand> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<sensact::comm::tCommand> root) {
   fbb.FinishSizePrefixed(root, tCommandIdentifier());
 }
 

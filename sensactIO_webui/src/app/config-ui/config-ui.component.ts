@@ -1,9 +1,17 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommunicationService } from '../communication.service';
 import * as fb from 'flatbuffers';
-import * as C from '../command_generated';
-import * as S from '../state_generated';
-import * as CFG from '../config_generated';
+import {tBlindCommand}  from '../sensact/comm/t-blind-command';
+import {tBlindState}  from '../sensact/comm/t-blind-state';
+import {tBlindConfig}  from '../sensact/comm/t-blind-config';
+import { tConfigWrapper } from '../sensact/comm/t-config-wrapper';
+import {tCommand}  from '../sensact/comm/t-command';
+import {uCommand}  from '../sensact/comm/u-command';
+import {tState}  from '../sensact/comm/t-state';
+import {uState}  from '../sensact/comm/u-state';
+import * as E from '../sensact/comm';
+import {uConfig}  from  '../sensact/comm/u-config';
+import { tIoConfig } from '../sensact/comm/t-io-config';
 
 export interface ConfigWrapperCreator {
   BuildAndReturnConfigWrapper(builder: fb.Builder): fb.Offset;
@@ -11,10 +19,10 @@ export interface ConfigWrapperCreator {
 
 export class Widget {
   constructor(
-    public type: CFG.uConfig,
+    public type: uConfig,
     public index: number,
     public isLast: boolean,
-    public rawData: CFG.tConfigWrapper = null,
+    public rawData: tConfigWrapper = null,
     public configWrapperCreator: ConfigWrapperCreator = null,
   ) { }
 }
@@ -25,13 +33,13 @@ export class Widget {
   styleUrls: ['./config-ui.component.scss']
 })
 export class ConfigUiComponent implements OnInit {
-  uConfig = CFG.uConfig;
+  uConfig = uConfig;
   widgets = new Array<Widget>();
 
-  public currentlySelectedWidgetType = CFG.uConfig.NONE;
+  public currentlySelectedWidgetType = uConfig.NONE;
 
   public onBtnAddClicked() {
-    if (this.currentlySelectedWidgetType == CFG.uConfig.NONE) return;
+    if (this.currentlySelectedWidgetType == uConfig.NONE) return;
     let l = this.widgets.length;
     if (l > 0) {
       this.widgets[l - 1].isLast = false;
@@ -46,8 +54,8 @@ export class ConfigUiComponent implements OnInit {
     for(let w of this.widgets){
       cfgs.push(w.configWrapperCreator.BuildAndReturnConfigWrapper(builder));
     }
-    let cfg_vect = CFG.tIoConfig.createConfigsVector(builder, cfgs);
-    let cfg= CFG.tIoConfig.createtIoConfig(builder, 0, cfg_vect);
+    let cfg_vect = tIoConfig.createConfigsVector(builder, cfgs);
+    let cfg= tIoConfig.createtIoConfig(builder, 0, cfg_vect);
     builder.finish(cfg);
     let arr= builder.asUint8Array();
     this.comm.putIoConfig(arr).subscribe();
