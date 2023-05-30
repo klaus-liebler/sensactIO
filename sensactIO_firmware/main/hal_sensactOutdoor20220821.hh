@@ -62,7 +62,7 @@ static constexpr size_t LED_NUMBER{2};
 static constexpr i2c_port_t I2C_PORT{I2C_NUM_1};
 
 static constexpr auto PWM_RESOLUTION{LEDC_TIMER_10_BIT};
-static constexpr uint32_t PWM_FREQ{500};
+static constexpr uint32_t PWM_FREQ{1000};//according to BP1808 datasheet: 100Hz...1kHz. Hörbares Fiepen bei 500Hz
 
 
 static constexpr int ntcNominal = 10000;         // Wiederstand des NTC bei Nominaltemperatur
@@ -70,6 +70,7 @@ static constexpr int tempNominal = 25;           // Temperatur bei der der NTC d
 static constexpr int bCoefficient = 3950;        // Beta Coefficient(aus Datenblatt des NTC)
 static constexpr int serialResistor = 10000;               // Wert des Widerstands der mit dem NTC in Serie geschalten ist
 
+static constexpr size_t ADC_READ_LEN{128};
 
 RGBLED::BlinkPattern blinkFastRedBlack(CRGB::Red, 300, CRGB::Black, 300); // booting
 RGBLED::BlinkPattern blinkFastGreenBlack(CRGB::Green, 300, CRGB::Black, 300);
@@ -77,7 +78,6 @@ RGBLED::BlinkPattern blinkFastBlueGreen(CRGB::Blue, 300, CRGB::Green, 300);
 RGBLED::BlinkPattern blinkFastYellowRed(CRGB::Yellow, 300, CRGB::Red, 300); // OTA Process
 RGBLED::BlinkPattern flashGreen(CRGB::Green, 100, CRGB::Black, 3000); // Run
 
-constexpr size_t ADC_READ_LEN{128};
 
 class HAL_SensactOutdoor : public HAL
 {
@@ -88,7 +88,7 @@ private:
     volatile float airRelHumidityPercent{std::numeric_limits<float>::quiet_NaN()};
     volatile float ambientBrightnessLux{std::numeric_limits<float>::quiet_NaN()};
 
-    WIFIMGR::SimpleState lastWifiState{WIFIMGR::SimpleState::OFFLINE};
+    WIFISTA::ConnectionState lastWifiState{WIFISTA::ConnectionState::NONE};
     
     //adc_oneshot_unit_handle_t adc_handle{nullptr};
     adc_cali_handle_t adc1_cali_handle{nullptr};
@@ -147,6 +147,7 @@ private:
         ESP_ERROR_CHECK(adc_continuous_register_event_callbacks(adc_handle, &callback_cfg, this));
 
         ESP_ERROR_CHECK(adc_continuous_start(adc_handle));
+        
 
         ESP_LOGI(TAG, "ADC successfully initialized");
     }
@@ -188,7 +189,13 @@ private:
     }
 */
 public:
-    HAL_SensactOutdoor() {}
+    HAL_SensactOutdoor() {
+        strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::PL9823>();
+    }
+
+    ~HAL_SensactOutdoor(){
+        delete strip;
+    }
 
     ErrorCode ConfigureIO(uint16_t io, IOMode mode)
     {
@@ -198,15 +205,10 @@ public:
 
     void OutputOneLineStatus()
     {
-        time_t now;
-        struct tm timeinfo;
-        char strftime_buf[64];
-        time(&now);
-        localtime_r(&now, &timeinfo);
-        strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+
         float degreesCelcius{1.1};
         this->GetAirTemperature(&degreesCelcius);
-        ESP_LOGI(TAG, "%s; heap=%lu; temp=%f ",strftime_buf, esp_get_free_heap_size(), degreesCelcius);
+        ESP_LOGI(TAG, "heap=%lu; temp=%f ",esp_get_free_heap_size(), degreesCelcius);
     }
 
     ErrorCode HardwareTest() override
@@ -315,7 +317,14 @@ public:
         if (pinId >= pins::sensactOutdoor::MOSFET1 && pinId <= pins::sensactOutdoor::LED_CC)
         {
             pinId -= pins::sensactOutdoor::MOSFET1;
-            uint32_t duty = state >> (16 - PWM_RESOLUTION);
+            uint32_t duty{0};
+            if(state==0){
+                duty=0;
+            }else if(state==UINT16_MAX){
+                duty=(1<<PWM_RESOLUTION) - 1;
+            }else{
+                duty = state >> (16 - PWM_RESOLUTION);
+            }
             ledc_set_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)pinId, duty);
             ledc_update_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)pinId);
             return ErrorCode::OK;
@@ -344,10 +353,7 @@ public:
         return ErrorCode::OK;
     }
 
-    int64_t IRAM_ATTR GetMicros() override
-    {
-        return esp_timer_get_time();
-    }
+
 
     uint32_t GetMillis() override
     {
@@ -361,7 +367,7 @@ public:
 
     ErrorCode GetAirTemperature(float *degreesCelsius)
     {
-
+        if(!adc1_cali_handle) return ErrorCode::HARDWARE_NOT_INITIALIZED;
         int calibratedVoltage_mV{0};
 
         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, rawAnalogTemperatureValue, &calibratedVoltage_mV));
@@ -394,7 +400,7 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode SetupAndRun() override
+    ErrorCode Setup() override
     {
         gpio_reset_pin(PIN_MAINS);
         gpio_set_direction(PIN_MAINS, GPIO_MODE_INPUT);
@@ -425,32 +431,32 @@ public:
         ledc_timer.clk_cfg = LEDC_AUTO_CLK;
         ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
 
+        ledc_channel_config_t ledc_channel;
+        ledc_channel.duty = 0;
+
+        ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
+        ledc_channel.hpoint = 0;
+        ledc_channel.timer_sel = LEDC_TIMER_0;
+        ledc_channel.intr_type = LEDC_INTR_DISABLE;
+
         for (size_t i = 0; i < PWM_PINS.size(); i++)
         {
-            ledc_channel_config_t ledc_channel;
             ledc_channel.channel = (ledc_channel_t)i;
-            ledc_channel.duty = 0;
             ledc_channel.gpio_num = PWM_PINS[i];
-            ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
-            ledc_channel.hpoint = 0;
-            ledc_channel.timer_sel = LEDC_TIMER_0;
-            ledc_channel.intr_type = LEDC_INTR_DISABLE;
             ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
         }
 
-        // I2C Master
-        ESP_ERROR_CHECK(I2C::Init(I2C_PORT, PIN_I2C_SCL, PIN_I2C_SDA));
-
         // LED Strip
-        strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::PL9823>();
         ESP_ERROR_CHECK(strip->Init(VSPI_HOST, PIN_RGBLED, 2));
         ESP_ERROR_CHECK(strip->Clear(100));
         ESP_ERROR_CHECK(strip->AnimatePixel(0, &blinkFastRedBlack));
         ESP_ERROR_CHECK(strip->SetPixel(1, CRGB::Black));
         ESP_ERROR_CHECK(strip->Refresh());
 
-        //NTC-Widerstand
-        this->InitADC();
+        // I2C Master -->Disable, not necessary!
+        //ESP_ERROR_CHECK(I2C::Init(I2C_PORT, PIN_I2C_SCL, PIN_I2C_SDA));
+        //NTC-Widerstand -->Disable
+        //this->InitADC(); könnte Probleme verursachen, wenn die Objekte gelöscht werden
 
         return ErrorCode::OK;
     }
@@ -462,19 +468,19 @@ public:
 
     ErrorCode AfterLoop()
     {
-        WIFIMGR::SimpleState newWifiState = WIFIMGR::GetState();
+        WIFISTA::ConnectionState newWifiState = WIFISTA::GetState();
 
         if (newWifiState != lastWifiState)
         {
             switch (newWifiState)
             {
-            case WIFIMGR::SimpleState::AP_AVAILABLE:
+            case WIFISTA::ConnectionState::CONNECTING:
                 strip->AnimatePixel(0, &blinkFastBlueGreen);
                 break;
-            case WIFIMGR::SimpleState::OFFLINE:
+            case WIFISTA::ConnectionState::UNCONNECTED:
                 strip->AnimatePixel(0, &blinkFastRedBlack);
                 break;
-            case WIFIMGR::SimpleState::STA_CONNECTED:
+            case WIFISTA::ConnectionState::CONNECTED:
                 strip->AnimatePixel(0, &flashGreen);
                 break;
             default:

@@ -156,7 +156,7 @@ public:
         return ErrorCode::NONE_AVAILABLE;
     }
 
-    ErrorCode SetupAndRun() override
+    ErrorCode Setup() override
     {
         for (const auto &pin : RELAY_PINS)
         {

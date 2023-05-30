@@ -100,7 +100,8 @@ class InputOutput{
 class HAL:public InputOutput
 {
 public:
-    virtual ErrorCode SetupAndRun() = 0;
+    virtual ~HAL(){}
+    virtual ErrorCode Setup() = 0;
     virtual ErrorCode ConfigureIO(uint16_t pinId, IOMode mode) = 0;
     /**
      * @param state 0 completely off, UINT16_MAX=completely on; all between is implementation specific
@@ -114,7 +115,6 @@ public:
     virtual ErrorCode GetBoolInputs(uint32_t *value) = 0;
     virtual ErrorCode ColorizeLed(uint8_t index, CRGB color) = 0;
     virtual ErrorCode UnColorizeAllLed() = 0;
-    virtual int64_t GetMicros() = 0;
     virtual uint32_t GetMillis() = 0;
     virtual int64_t GetMillis64() = 0;
     virtual ErrorCode AfterLoop() = 0;

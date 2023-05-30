@@ -4,7 +4,11 @@
 #include "applicationBase.hh"
 #include <rx470c.hh>
 #include <vector>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include <freertos/semphr.h>
+#include <freertos/event_groups.h>
+
 
 class Manager:public PostOffice, public InputOutput
 {
@@ -19,10 +23,14 @@ private:
     std::vector<IOMode> configurationBuffer;
     bool reconfigurationRequestOccured{false};
     SemaphoreHandle_t handleCommandSemaphore = NULL;
-    ErrorCode Loop();
-    static void Task(void *pvParameters);
+    EventGroupHandle_t eventGroup;
+    EventBits_t stop_requestBit;
+    void Task();
+    static void Task_static(void *pvParameters);
 public:
-    Manager(HAL *hal, std::vector<IOSource *> ioSources);
+    Manager(HAL *hal, std::vector<IOSource *> ioSources, EventGroupHandle_t eventGroup, EventBits_t stop_requestBit);
+    virtual ~Manager(){
+    }
     ErrorCode HandleCommand(const sensact::comm::tCommand *cmd);
     ErrorCode FillBuilderWithStateForWebUI(flatbuffers::FlatBufferBuilder *builder);
     ErrorCode SetupAndRun();

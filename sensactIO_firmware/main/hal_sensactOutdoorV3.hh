@@ -348,7 +348,7 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode SetupAndRun() override
+    ErrorCode Setup() override
     {
         gpio_pad_select_gpio((uint8_t)PIN_MAINS);
         gpio_set_direction(PIN_MAINS, GPIO_MODE_INPUT);
